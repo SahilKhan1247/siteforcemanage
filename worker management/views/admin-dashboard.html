@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Admin Dashboard</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workersmangBtn">
+                        <i class="fa-solid fa-users"></i> Workers Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workerattendBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Worker Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="aprojectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="areportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="wpayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Admin Dashboard</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search workers, projects..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Yogesh&background=7c3aed&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Yogesh</h4>
+                            <small>Admin</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- NEW ATTRACTIVE BANNER -->
+            <section class="dashboard-banner">
+                <div class="banner-content">
+                    <div class="banner-left">
+                        <h2>👋 Welcome back, <span id="adminName">Yogesh</span>!</h2>
+                        <p>Here's what's happening with your workforce today.</p>
+                    </div>
+                    <div class="banner-right">
+                        <div class="banner-date">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span id="bannerDate">Today</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="banner-stats">
+                    <div class="banner-stat-item">
+                        <span class="stat-icon">👥</span>
+                        <div>
+                            <span class="stat-number" id="bannerTotalWorkers">0</span>
+                            <span class="stat-label">Total Workers</span>
+                        </div>
+                    </div>
+                    <div class="banner-stat-item">
+                        <span class="stat-icon">✅</span>
+                        <div>
+                            <span class="stat-number" id="bannerPresent">0</span>
+                            <span class="stat-label">Present Today</span>
+                        </div>
+                    </div>
+                    <div class="banner-stat-item">
+                        <span class="stat-icon">📊</span>
+                        <div>
+                            <span class="stat-number" id="bannerAttendanceRate">0%</span>
+                            <span class="stat-label">Attendance Rate</span>
+                        </div>
+                    </div>
+                    <div class="banner-stat-item">
+                        <span class="stat-icon">🏗️</span>
+                        <div>
+                            <span class="stat-number" id="bannerActiveProjects">0</span>
+                            <span class="stat-label">Active Projects</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATS CARDS - REAL TIME -->
+            <section class="cards">
+                <div class="card">
+                    <div class="card-icon blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Total Workers</h4>
+                        <h2 id="totalWorkers">0</h2>
+                        <div class="card-sub">Active workforce</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Present Today</h4>
+                        <h2 id="presentToday">0</h2>
+                        <div class="card-sub"><span id="presentPercent">0%</span> attendance</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon red">
+                        <i class="fa-solid fa-user-xmark"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Absent Today</h4>
+                        <h2 id="absentToday">0</h2>
+                        <div class="card-sub"><span id="absentPercent">0%</span> absent</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon orange">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Late Today</h4>
+                        <h2 id="lateToday">0</h2>
+                        <div class="card-sub"><span id="latePercent">0%</span> late</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon purple">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Active Projects</h4>
+                        <h2 id="activeProjects">0</h2>
+                        <div class="card-sub">Ongoing projects</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon cyan">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Total Sites</h4>
+                        <h2 id="totalSites">0</h2>
+                        <div class="card-sub">Active locations</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon yellow">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Total Payroll</h4>
+                        <h2 id="totalPayroll">₹0</h2>
+                        <div class="card-sub">This month</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon purple">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Pending Approvals</h4>
+                        <h2 id="pendingApprovals">0</h2>
+                        <div class="card-sub">Leave & Overtime</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHARTS SECTION - REAL TIME -->
+            <section class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Daily Worker Check-ins</h2>
+                        <p>Last 7 days check-in trend</p>
+                    </div>
+                    <canvas id="dailyCheckinsChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Site Performance</h2>
+                        <p>Worker productivity by project</p>
+                    </div>
+                    <canvas id="sitePerformanceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- RECENT ACTIVITY - REAL TIME -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Recent Activity</h2>
+                        <p>Latest check-ins, leaves and task updates</p>
+                    </div>
+                    <button class="view-all-btn" onclick="window.location.href='/workerattend'">
+                        View All
+                    </button>
+                </div>
+
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-icon blue">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>Loading recent activity...</p>
+                            <span class="activity-time">Please wait</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- NOTIFICATION DROPDOWN (Added by JS) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+
+</body>
+</html> 

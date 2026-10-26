@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Admin Payroll Management</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/apayroll.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="ownerdashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminsmanBtn">
+                        <i class="fa-solid fa-user-shield"></i> Admins Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminattendanceBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Admin Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="projectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="reportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="settingsBtn">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Admin Payroll Management</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search admin by name or ID..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="setting" id="settingsBtnTop">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Sahil&background=7c3aed&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Sahil</h4>
+                            <small>Owner</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PAYROLL BANNER -->
+            <section class="payroll-banner">
+                <h2>Admin Payroll Management</h2>
+                <p>Review admin wages, overtime and disburse admin salaries.</p>
+                <div class="banner-stats-mini">
+                    <span>👥 <span id="totalAdminCount">0</span> Admins</span>
+                    <span>💰 <span id="totalPayrollMini">₹0</span> Total</span>
+                    <span>⏳ <span id="pendingCount">0</span> Pending</span>
+                    <span>✅ <span id="paidCount">0</span> Paid</span>
+                </div>
+            </section>
+
+            <!-- SALARY SETTINGS SECTION -->
+            <section class="salary-settings">
+                <div class="settings-header">
+                    <h2><i class="fa-solid fa-sliders-h"></i> Salary Settings</h2>
+                    <p>Configure daily wage rates for each admin role</p>
+                </div>
+                <div class="settings-grid" id="salarySettingsGrid">
+                    <!-- Settings will be loaded here -->
+                </div>
+            </section>
+
+            <!-- STATS CARDS -->
+            <section class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Total Payroll</h4>
+                        <h2 id="totalPayroll">₹0</h2>
+                        <span>Current cycle</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Pending Payments</h4>
+                        <h2 id="pendingPayments">₹0</h2>
+                        <span><span id="pendingAdmins">0</span> admins awaiting</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Paid Admins</h4>
+                        <h2 id="paidAdmins">0</h2>
+                        <span>of <span id="totalAdmins">0</span> admins</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Payroll Month</h4>
+                        <h2 id="payrollMonth">June 2026</h2>
+                        <span>28 days cycle</span>
+                    </div>
+                </div>
+                <!-- NEW CARDS -->
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fa-solid fa-user-times"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Super Admins</h4>
+                        <h2 id="superAdminCount">0</h2>
+                        <span>role based</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cyan">
+                        <i class="fa-solid fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Project Admins</h4>
+                        <h2 id="projectAdminCount">0</h2>
+                        <span>role based</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fa-solid fa-hard-hat"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Site Admins</h4>
+                        <h2 id="siteAdminCount">0</h2>
+                        <span>role based</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Processing</h4>
+                        <h2 id="processingCount">0</h2>
+                        <span>in progress</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAYROLL TABLE -->
+            <section class="payroll-table-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Admin Payroll</h2>
+                        <p>Manage admin salaries, deductions and generate payslips</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-give-salary" onclick="openGiveSalaryModal()">
+                            <i class="fa-solid fa-hand-holding-usd"></i> Give Salary
+                        </button>
+                        <button class="btn-generate" onclick="generatePayroll()">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Generate Payroll
+                        </button>
+                        <button class="btn-export" onclick="exportPayroll()">
+                            <i class="fa-solid fa-file-export"></i> Export
+                        </button>
+                        <button class="btn-refresh" id="refreshBtn">
+                            <i class="fa-solid fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <div class="search-input">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="searchPayroll" placeholder="Search by name or ID..." />
+                    </div>
+                    <select id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                    <select id="roleFilter">
+                        <option value="">All Roles</option>
+                        <option value="Super Admin">Super Admin</option>
+                        <option value="Project Admin">Project Admin</option>
+                        <option value="Site Admin">Site Admin</option>
+                    </select>
+                    <select id="projectFilter">
+                        <option value="">All Projects</option>
+                    </select>
+
+                    <select id="monthFilter">
+                        <option value="">All Months</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+
+                    <select id="yearFilter">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Admin Name</th>
+                                <th>Role</th>
+                                <th>Present Days</th>
+                                <th>Daily Wage</th>
+                                <th>Overtime</th>
+                                <th>Advance</th>
+                                <th>Net Salary</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payrollTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span id="entriesInfo">Showing 1 to 8 of 0 entries</span>
+                    <div class="pagination-buttons">
+                        <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <div id="pageNumbers"></div>
+                        <button id="nextPage">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- GIVE SALARY MODAL -->
+    <div id="giveSalaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-hand-holding-usd"></i> Give Salary</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="giveSalaryForm">
+                <div class="form-group">
+                    <label>Select Admin <span style="color: var(--red);">*</span></label>
+                    <select id="salaryAdmin" required>
+                        <option value="">Select Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Salary Date <span style="color: var(--red);">*</span></label>
+                    <input type="date" id="salaryDate" required />
+                </div>
+                <div class="form-group">
+                    <label>Present Days</label>
+                    <input type="number" id="salaryPresentDays" value="26" min="1" max="31" />
+                </div>
+                <div class="form-group">
+                    <label>Daily Wage (₹)</label>
+                    <input type="number" id="salaryDailyWage" value="1500" min="100" step="50" />
+                </div>
+                <div class="form-group">
+                    <label>Overtime (₹)</label>
+                    <input type="number" id="salaryOvertime" value="0" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>Advance Deduction (₹)</label>
+                    <input type="number" id="salaryAdvance" value="0" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>Net Salary (₹) - Auto Calculated</label>
+                    <input type="text" id="salaryNetSalary" readonly style="background: #f1f5f9; font-weight: 700; color: var(--purple); font-size: 18px;" />
+                </div>
+                <div class="form-group">
+                    <label>Status <span style="color: var(--red);">*</span></label>
+                    <select id="salaryStatus" required>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-hand-holding-usd"></i> Give Salary
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT SALARY MODAL -->
+    <div id="editSalaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Admin Salary</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editSalaryForm">
+                <div class="form-group">
+                    <label>Admin Name</label>
+                    <input type="text" id="editAdminName" readonly style="background: #f1f5f9; font-weight: 600;" />
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" id="editAdminRole" readonly style="background: #f1f5f9;" />
+                </div>
+                <div class="form-group">
+                    <label>Present Days</label>
+                    <input type="number" id="editPresentDays" required min="1" max="31" />
+                </div>
+                <div class="form-group">
+                    <label>Daily Wage (₹)</label>
+                    <input type="number" id="editDailyWage" required min="100" step="50" />
+                </div>
+                <div class="form-group">
+                    <label>Overtime (₹)</label>
+                    <input type="number" id="editOvertime" value="0" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>Advance Deduction (₹)</label>
+                    <input type="number" id="editAdvance" value="0" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>Net Salary (₹) - Auto Calculated</label>
+                    <input type="text" id="editNetSalary" readonly style="background: #f1f5f9; font-weight: 700; color: var(--purple);" />
+                </div>
+                <div class="form-group">
+                    <label>Salary Date</label>
+                    <input type="date" id="editSalaryDate" />
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editStatus">
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-save"></i> Update Salary
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW PAYSLIP MODAL -->
+    <div id="payslipModal" class="modal">
+        <div class="modal-content payslip-content">
+            <div class="modal-header">
+                <h2>Admin Payslip</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="payslipData">
+                <!-- Payslip data will be loaded here -->
+            </div>
+            <button class="btn-download-payslip" onclick="downloadPayslip()">
+                <i class="fa-solid fa-download"></i> Download Payslip
+            </button>
+        </div>
+    </div>
+
+    <!-- EDIT SALARY SETTINGS MODAL -->
+    <div id="salaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Salary Settings</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="salaryForm">
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" id="salaryRole" readonly style="background: #f1f5f9; font-weight: 600;" />
+                </div>
+                <div class="form-group">
+                    <label>Daily Wage (₹)</label>
+                    <input type="number" id="salaryDailyWage" required min="100" step="50" />
+                </div>
+                <div class="form-group">
+                    <label>Monthly Salary (₹)</label>
+                    <input type="text" id="salaryMonthly" readonly style="background: #f1f5f9; font-weight: 700; color: var(--purple);" />
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-save"></i> Update Salary
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GENERATE PAYROLL MODAL -->
+    <div id="generateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Admin Payroll</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="generateForm">
+                <div class="form-group">
+                    <label>Month</label>
+                    <select id="payrollMonthSelect" required>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June" selected>June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" id="payrollYear" value="2026" required />
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Generate Admin Payroll
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/js/apayroll.js"></script>
+
+</body>
+</html>

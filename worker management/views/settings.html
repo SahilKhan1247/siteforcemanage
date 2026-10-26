@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - System Settings</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/settings.css">
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="ownerdashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminsmanBtn">
+                        <i class="fa-solid fa-user-shield"></i> Admins Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminattendanceBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Admin Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="projectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="reportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="apayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>System Settings</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search settings..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge">0</span>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="setting" id="settingsBtnTop">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Sahil&background=2563eb&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="profileName">Sahil</h4>
+                            <small>Owner</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SETTINGS TABS -->
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="general">
+                    <i class="fa-solid fa-sliders-h"></i> General
+                </button>
+                <button class="tab-btn" data-tab="salary">
+                    <i class="fa-solid fa-money-bill-wave"></i> Salary
+                </button>
+                <button class="tab-btn" data-tab="system">
+                    <i class="fa-solid fa-server"></i> System
+                </button>
+                <button class="tab-btn" data-tab="database">
+                    <i class="fa-solid fa-database"></i> Database
+                </button>
+                <button class="tab-btn" data-tab="security">
+                    <i class="fa-solid fa-shield-alt"></i> Security
+                </button>
+                <button class="tab-btn" data-tab="notification">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                </button>
+                <button class="tab-btn" data-tab="appearance">
+                    <i class="fa-solid fa-palette"></i> Appearance
+                </button>
+                <button class="tab-btn" data-tab="about">
+                    <i class="fa-solid fa-info-circle"></i> About
+                </button>
+            </div>
+
+            <!-- TAB CONTENT -->
+            <div class="settings-content">
+
+                <!-- GENERAL TAB -->
+                <div class="tab-panel active" id="tab-general">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-sliders-h"></i>
+                            <h3>General Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Site Name</label>
+                                <input type="text" id="siteName" value="SiteForce" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Default Currency</label>
+                                <select id="defaultCurrency">
+                                    <option value="₹">₹ (INR)</option>
+                                    <option value="$">$ (USD)</option>
+                                    <option value="€">€ (EUR)</option>
+                                    <option value="£">£ (GBP)</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Time Zone</label>
+                                <select id="timeZone">
+                                    <option value="Asia/Mumbai">Asia/Mumbai (UTC+5:30)</option>
+                                    <option value="America/New_York">America/New_York (UTC-5:00)</option>
+                                    <option value="Europe/London">Europe/London (UTC+0:00)</option>
+                                    <option value="Australia/Sydney">Australia/Sydney (UTC+10:00)</option>
+                                </select>
+                            </div>
+                            <button class="btn-save" onclick="saveGeneralSettings()">
+                                <i class="fa-solid fa-save"></i> Save General Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SALARY TAB -->
+                <div class="tab-panel" id="tab-salary">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <h3>Salary Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Super Admin Daily Wage (₹)</label>
+                                <input type="number" id="superAdminWage" value="2000" min="100" step="50" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Project Admin Daily Wage (₹)</label>
+                                <input type="number" id="projectAdminWage" value="1500" min="100" step="50" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Site Admin Daily Wage (₹)</label>
+                                <input type="number" id="siteAdminWage" value="1200" min="100" step="50" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Default Working Days</label>
+                                <input type="number" id="defaultWorkingDays" value="26" min="1" max="31" />
+                            </div>
+                            <button class="btn-save" onclick="saveSalarySettings()">
+                                <i class="fa-solid fa-save"></i> Save Salary Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM TAB -->
+                <div class="tab-panel" id="tab-system">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-server"></i>
+                            <h3>System Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Maintenance Mode</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="maintenanceMode" />
+                                    <label for="maintenanceMode" class="toggle-label"></label>
+                                    <span class="toggle-status" id="maintenanceStatus">Off</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Allow New Registrations</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="allowRegistration" checked />
+                                    <label for="allowRegistration" class="toggle-label"></label>
+                                    <span class="toggle-status" id="registrationStatus">On</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Log Level</label>
+                                <select id="logLevel">
+                                    <option value="info">Info</option>
+                                    <option value="debug">Debug</option>
+                                    <option value="error">Error</option>
+                                    <option value="warning">Warning</option>
+                                </select>
+                            </div>
+                            <button class="btn-save" onclick="saveSystemSettings()">
+                                <i class="fa-solid fa-save"></i> Save System Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATABASE TAB - REAL TIME -->
+                <div class="tab-panel" id="tab-database">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-database"></i>
+                            <h3>Database Management</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <span class="stat-label">Total Admins</span>
+                                    <span class="stat-value" id="totalAdminsCount">0</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Total Projects</span>
+                                    <span class="stat-value" id="totalProjectsCount">0</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Total Workers</span>
+                                    <span class="stat-value" id="totalWorkersCount">0</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Total Attendance</span>
+                                    <span class="stat-value" id="totalAttendanceCount">0</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Total Payroll</span>
+                                    <span class="stat-value" id="totalPayrollCount">0</span>
+                                </div>
+                                <div class="stat-box full">
+                                    <span class="stat-label">Database Size</span>
+                                    <span class="stat-value" id="dbSize">Calculating...</span>
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn-action btn-primary" onclick="backupDatabase()">
+                                    <i class="fa-solid fa-download"></i> Backup Database
+                                </button>
+                                <button class="btn-action btn-warning" onclick="clearCache()">
+                                    <i class="fa-solid fa-trash"></i> Clear Cache
+                                </button>
+                                <button class="btn-action btn-danger" onclick="refreshStats()">
+                                    <i class="fa-solid fa-sync"></i> Refresh Stats
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECURITY TAB -->
+                <div class="tab-panel" id="tab-security">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-shield-alt"></i>
+                            <h3>Security Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Session Timeout (minutes)</label>
+                                <input type="number" id="sessionTimeout" value="60" min="5" max="1440" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Two-Factor Authentication</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="twoFactorAuth" />
+                                    <label for="twoFactorAuth" class="toggle-label"></label>
+                                    <span class="toggle-status" id="twoFactorStatus">Off</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Password Policy</label>
+                                <select id="passwordPolicy">
+                                    <option value="medium">Medium (8 chars, 1 number)</option>
+                                    <option value="high">High (10 chars, 1 special)</option>
+                                    <option value="very_high">Very High (12 chars, 2 special)</option>
+                                </select>
+                            </div>
+                            <button class="btn-save" onclick="saveSecuritySettings()">
+                                <i class="fa-solid fa-save"></i> Save Security Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATIONS TAB -->
+                <div class="tab-panel" id="tab-notification">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-bell"></i>
+                            <h3>Notification Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Email Notifications</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="emailNotifications" checked />
+                                    <label for="emailNotifications" class="toggle-label"></label>
+                                    <span class="toggle-status" id="emailStatus">On</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Attendance Alerts</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="attendanceAlerts" checked />
+                                    <label for="attendanceAlerts" class="toggle-label"></label>
+                                    <span class="toggle-status" id="attendanceAlertStatus">On</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Low Attendance Threshold (%)</label>
+                                <input type="number" id="lowAttendanceThreshold" value="75" min="0" max="100" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Notification Email</label>
+                                <input type="email" id="notificationEmail" value="admin@siteforce.com" />
+                            </div>
+                            <button class="btn-save" onclick="saveNotificationSettings()">
+                                <i class="fa-solid fa-save"></i> Save Notification Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPEARANCE TAB - NEW -->
+                <div class="tab-panel" id="tab-appearance">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-palette"></i>
+                            <h3>Appearance Settings</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-item">
+                                <label>Theme Mode</label>
+                                <div class="theme-selector">
+                                    <button class="theme-btn active" data-theme="light" onclick="setTheme('light')">
+                                        <i class="fa-solid fa-sun"></i> Light
+                                    </button>
+                                    <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">
+                                        <i class="fa-solid fa-moon"></i> Dark
+                                    </button>
+                                    <button class="theme-btn" data-theme="system" onclick="setTheme('system')">
+                                        <i class="fa-solid fa-desktop"></i> System
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Primary Color</label>
+                                <div class="color-picker">
+                                    <input type="color" id="primaryColor" value="#2563eb" onchange="updatePrimaryColor(this.value)" />
+                                    <span id="primaryColorLabel">#2563eb</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Font Size</label>
+                                <select id="fontSize" onchange="updateFontSize(this.value)">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                            <button class="btn-save" onclick="saveAppearanceSettings()">
+                                <i class="fa-solid fa-save"></i> Save Appearance Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABOUT TAB -->
+                <div class="tab-panel" id="tab-about">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <h3>About System</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="about-grid">
+                                <div class="about-item">
+                                    <span class="about-label">System Name</span>
+                                    <span class="about-value">SiteForce - Construction Management Suite</span>
+                                </div>
+                                <div class="about-item">
+                                    <span class="about-label">Version</span>
+                                    <span class="about-value">v2.4.1</span>
+                                </div>
+                                <div class="about-item">
+                                    <span class="about-label">Framework</span>
+                                    <span class="about-value">Node.js + Express + MongoDB</span>
+                                </div>
+                                <div class="about-item">
+                                    <span class="about-label">Database</span>
+                                    <span class="about-value">MongoDB</span>
+                                </div>
+                                <div class="about-item">
+                                    <span class="about-label">Last Updated</span>
+                                    <span class="about-value" id="lastUpdated">Today</span>
+                                </div>
+                                <div class="about-item">
+                                    <span class="about-label">System Status</span>
+                                    <span class="about-value status-running">✅ System Running</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="settings-actions">
+                <button class="btn-action btn-primary" onclick="saveAllSettings()">
+                    <i class="fa-solid fa-save"></i> Save All Settings
+                </button>
+                <button class="btn-action btn-secondary" onclick="resetSettings()">
+                    <i class="fa-solid fa-undo"></i> Reset to Default
+                </button>
+                <button class="btn-action btn-info" onclick="exportAllData()">
+                    <i class="fa-solid fa-file-export"></i> Export All Data
+                </button>
+            </div>
+
+            <!-- TOAST NOTIFICATION -->
+            <div id="toast" class="toast">
+                <i class="fa-solid fa-check-circle"></i>
+                <span id="toastMessage">Settings saved successfully!</span>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/settings.js"></script>
+
+</body>
+</html>

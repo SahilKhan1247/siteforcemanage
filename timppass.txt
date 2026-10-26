@@ -1,0 +1,924 @@
+
+const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+let allPayrollData = [];
+let allWorkersData = [];
+let currentPage = 1;
+let totalPages = 1;
+const itemsPerPage = 8;
+let currentPayslip = null;
+let searchTimer;
+
+// ==================== HELPERS ====================
+
+const $ = id => document.getElementById(id);
+
+function setText(id, value) {
+    if ($(id)) $(id).textContent = value;
+}
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;'
+    })[c]);
+}
+
+function money(value) {
+    return Number(value || 0).toLocaleString('en-IN', {
+        maximumFractionDigits: 2
+    });
+}
+
+function getToday() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function dateForInput(value) {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatDate(value) {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+    });
+}
+
+function initials(name) {
+    return String(name || 'Worker').trim()
+        .split(/\s+/).map(x => x[0]).join('')
+        .toUpperCase().slice(0, 2);
+}
+
+function showToast(message, type = 'success') {
+    document.querySelector('.payroll-toast')?.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'payroll-toast';
+    toast.textContent = message;
+
+    Object.assign(toast.style, {
+        position: 'fixed', right: '24px', top: '24px',
+        zIndex: '99999', padding: '14px 20px',
+        borderRadius: '8px', color: '#fff',
+        background: type === 'error' ? '#dc2626' : '#16a34a',
+        boxShadow: '0 5px 20px #0002'
+    });
+
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+}
+
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, options);
+    let result = {};
+
+    try {
+        result = await response.json();
+    } catch {}
+
+    if (!response.ok) {
+        throw new Error(result.error || result.message || `HTTP ${response.status}`);
+    }
+
+    return result;
+}
+
+function jsonRequest(method, data) {
+    return {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    };
+}
+
+function calculateSalary(days, wage, overtime, advance) {
+    return Number(days || 0) * Number(wage || 0)
+        + Number(overtime || 0) - Number(advance || 0);
+}
+
+// ==================== MONTH/YEAR FILTER FIX ====================
+
+// Use the actual salaryDate first. Use month/year fields only if
+// salaryDate is missing or invalid.
+function getRecordMonthYear(record) {
+    if (record.salaryDate) {
+        const date = new Date(record.salaryDate);
+
+        if (!Number.isNaN(date.getTime())) {
+            return {
+                month: MONTHS[date.getMonth()],
+                year: String(date.getFullYear())
+            };
+        }
+    }
+
+    return {
+        month: String(record.month || ''),
+        year: String(record.year || '')
+    };
+}
+
+function filterPayroll(records) {
+    const selectedMonth = $('monthFilter')?.value || '';
+    const selectedYear = $('yearFilter')?.value || '';
+
+    return records.filter(record => {
+        const period = getRecordMonthYear(record);
+
+        const monthMatches =
+            !selectedMonth || period.month === selectedMonth;
+
+        const yearMatches =
+            !selectedYear || period.year === String(selectedYear);
+
+        return monthMatches && yearMatches;
+    });
+}
+
+// ==================== WORKERS ====================
+
+async function loadWorkersForDropdown() {
+    try {
+        const workers = await apiRequest('/api/workers');
+        if (!Array.isArray(workers)) throw new Error('Invalid workers response');
+
+        allWorkersData = workers;
+
+        const select = $('salaryWorker');
+        if (select) {
+            select.innerHTML = '<option value="">Select Worker</option>' +
+                workers.map(w => `
+                    <option value="${escapeHTML(w._id)}">
+                        ${escapeHTML(w.name)} (${escapeHTML(w.workerId || w.workerIdNumber || 'N/A')})
+                    </option>
+                `).join('');
+        }
+
+        setText('totalWorkers', workers.length);
+        setText('totalWorkerCount', workers.length);
+    } catch (error) {
+        console.error(error);
+        showToast('Unable to load workers: ' + error.message, 'error');
+    }
+}
+
+// ==================== PROJECT FILTER ====================
+
+async function loadProjectsForFilters() {
+    try {
+        const projects = await apiRequest('/api/projects');
+        if (!Array.isArray(projects)) return;
+
+        const select = $('projectFilter');
+        if (!select) return;
+
+        const previous = select.value;
+        select.innerHTML = '<option value="">All Projects</option>' +
+            projects.map(p => `
+                <option value="${escapeHTML(p.name)}">${escapeHTML(p.name)}</option>
+            `).join('');
+
+        select.value = previous;
+    } catch (error) {
+        console.error('Project loading error:', error);
+    }
+}
+
+// ==================== CATEGORY SALARY SETTINGS ====================
+
+async function loadSalarySettings() {
+    try {
+        const settings = await apiRequest('/api/worker-payroll/settings');
+        if (!Array.isArray(settings) || !$('salarySettingsGrid')) return;
+
+        $('salarySettingsGrid').innerHTML = settings.map(s => `
+            <div class="settings-card">
+                <h3>${escapeHTML(s.category)}</h3>
+                <p>Daily Wage: <strong>₹${money(s.dailyWage)}</strong></p>
+                <p>Monthly Estimate: <strong>₹${money(Number(s.dailyWage) * 26)}</strong></p>
+                <button type="button" class="btn-edit-salary"
+                    onclick="openCategorySalaryModal('${escapeHTML(s.category)}',${Number(s.dailyWage)})">
+                    Edit Salary
+                </button>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Salary settings error:', error);
+    }
+}
+
+function openCategorySalaryModal(category, wage) {
+    $('categorySalaryName').value = category;
+    $('categoryDailyWage').value = wage;
+    updateCategoryMonthlySalary();
+    $('categorySalaryModal').style.display = 'block';
+}
+
+function updateCategoryMonthlySalary() {
+    const wage = Number($('categoryDailyWage')?.value || 0);
+    if ($('categoryMonthlySalary')) {
+        $('categoryMonthlySalary').value = `₹${money(wage * 26)}`;
+    }
+}
+
+async function updateCategorySalary(category, dailyWage) {
+    if (!category || !Number.isFinite(dailyWage) || dailyWage <= 0) {
+        showToast('Enter a valid category and wage.', 'error');
+        return;
+    }
+
+    try {
+        await apiRequest('/api/worker-payroll/settings',
+            jsonRequest('PUT', { category, dailyWage }));
+
+        $('categorySalaryModal').style.display = 'none';
+        showToast('Category salary updated.');
+        await loadSalarySettings();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ==================== LOAD PAYROLL ====================
+
+async function loadWorkerPayroll() {
+    const tbody = $('payrollTableBody');
+
+    if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:30px">Loading payroll...</td></tr>`;
+    }
+
+    try {
+        const params = new URLSearchParams();
+        const search = $('searchPayroll')?.value.trim() || '';
+        const status = $('statusFilter')?.value || '';
+        const category = $('categoryFilter')?.value || '';
+        const project = $('projectFilter')?.value || '';
+        const month = $('monthFilter')?.value || '';
+        const year = $('yearFilter')?.value || '';
+
+        if (search) params.set('search', search);
+        if (status) params.set('status', status);
+        if (category) params.set('category', category);
+        if (project) params.set('project', project);
+        if (month) params.set('month', month);
+        if (year) params.set('year', year);
+
+        const result = await apiRequest(
+            `/api/worker-payroll?${params.toString()}`
+        );
+
+        // Support APIs that return either an array or { payroll: [...] }.
+        const records = Array.isArray(result)
+            ? result
+            : Array.isArray(result.payroll)
+                ? result.payroll
+                : Array.isArray(result.data)
+                    ? result.data
+                    : null;
+
+        if (!records) {
+            throw new Error('Payroll API must return an array of records.');
+        }
+
+        // THE IMPORTANT FIX:
+        // Never display records from other months, even if the backend
+        // accidentally returns records from every month.
+        allPayrollData = filterPayroll(records);
+
+        currentPage = 1;
+        renderPayrollTable();
+        updateWorkerStats();
+    } catch (error) {
+        console.error('Payroll loading error:', error);
+
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:30px">Unable to load payroll: ${escapeHTML(error.message)}</td></tr>`;
+        }
+
+        showToast('Unable to load payroll.', 'error');
+    }
+}
+
+// ==================== PAYROLL TABLE ====================
+
+function renderPayrollTable() {
+    const tbody = $('payrollTableBody');
+    if (!tbody) return;
+
+    const total = allPayrollData.length;
+    totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
+    currentPage = Math.max(1, Math.min(currentPage, totalPages));
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = Math.min(start + itemsPerPage, total);
+    const rows = allPayrollData.slice(start, end);
+
+    if (!rows.length) {
+        const month = $('monthFilter')?.value || '';
+        const year = $('yearFilter')?.value || '';
+        const period = [month, year].filter(Boolean).join(' ') || 'selected period';
+
+        tbody.innerHTML = `
+            <tr><td colspan="10" style="text-align:center;padding:40px">
+                No payroll records found for ${escapeHTML(period)}.
+            </td></tr>`;
+    } else {
+        tbody.innerHTML = rows.map(r => `
+            <tr>
+                <td>
+                    <div class="admin-info">
+                        <div class="admin-avatar">${escapeHTML(initials(r.name))}</div>
+                        <div class="admin-details">
+                            <span class="admin-name">${escapeHTML(r.name)}</span>
+                            <span class="admin-id">${escapeHTML(r.workerIdNumber || 'N/A')}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="role-badge">${escapeHTML(r.category || 'Worker')}</span></td>
+                <td>${Number(r.presentDays || 0)}</td>
+                <td>₹${money(r.dailyWage)}</td>
+                <td>+₹${money(r.overtime)}</td>
+                <td>-₹${money(r.advance)}</td>
+                <td><strong>₹${money(r.netSalary)}</strong></td>
+                <td><span class="status-badge ${escapeHTML(String(r.status || 'Pending').toLowerCase())}">${escapeHTML(r.status || 'Pending')}</span></td>
+                <td>${escapeHTML(formatDate(r.salaryDate))}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn-edit-salary-row" onclick="openEditSalaryModal('${escapeHTML(r._id)}')">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                        <button type="button" class="btn-view-payslip" onclick="viewWorkerPayslip('${escapeHTML(r._id)}')">
+                            <i class="fa-solid fa-eye"></i> Payslip
+                        </button>
+                        <button type="button" class="btn-delete-payroll" onclick="deletePayrollRecord('${escapeHTML(r._id)}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    setText('entriesInfo', total
+        ? `Showing ${start + 1} to ${end} of ${total} entries`
+        : 'Showing 0 to 0 of 0 entries');
+
+    if ($('prevPage')) $('prevPage').disabled = currentPage <= 1;
+    if ($('nextPage')) $('nextPage').disabled = currentPage >= totalPages || total === 0;
+
+    renderPageNumbers();
+}
+
+function renderPageNumbers() {
+    const container = $('pageNumbers');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    for (let page = 1; page <= totalPages; page++) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `page-number${page === currentPage ? ' active' : ''}`;
+        button.textContent = page;
+
+        button.addEventListener('click', () => {
+            currentPage = page;
+            renderPayrollTable();
+        });
+
+        container.appendChild(button);
+    }
+}
+
+// ==================== STATISTICS ====================
+
+function updateWorkerStats() {
+    const total = allPayrollData.reduce((sum, r) => sum + Number(r.netSalary || 0), 0);
+    const pending = allPayrollData.filter(r => r.status === 'Pending');
+    const pendingAmount = pending.reduce((sum, r) => sum + Number(r.netSalary || 0), 0);
+    const paid = allPayrollData.filter(r => r.status === 'Paid').length;
+
+    setText('totalPayroll', `₹${money(total)}`);
+    setText('totalPayrollMini', `₹${money(total)}`);
+    setText('pendingPayments', `₹${money(pendingAmount)}`);
+    setText('pendingWorkers', pending.length);
+    setText('pendingCount', pending.length);
+    setText('paidWorkers', paid);
+    setText('totalWorkers', allWorkersData.length);
+    setText('totalWorkerCount', allWorkersData.length);
+
+    const month = $('monthFilter')?.value || '';
+    const year = $('yearFilter')?.value || '';
+    setText('payrollMonth', [month || 'All Months', year].filter(Boolean).join(' '));
+}
+
+// ==================== GIVE SALARY ====================
+
+function openGiveSalaryModal() {
+    $('salaryDate').value = getToday();
+    $('salaryPresentDays').value = 26;
+    $('salaryDailyWage').value = 750;
+    $('salaryOvertime').value = 0;
+    $('salaryAdvance').value = 0;
+    $('salaryStatus').value = 'Paid';
+    calculateGiveSalary();
+    $('giveSalaryModal').style.display = 'block';
+}
+
+function calculateGiveSalary() {
+    const amount = calculateSalary(
+        $('salaryPresentDays').value,
+        $('salaryDailyWage').value,
+        $('salaryOvertime').value,
+        $('salaryAdvance').value
+    );
+
+    $('salaryNetSalary').value = `₹${money(amount)}`;
+}
+
+async function giveSalary(event) {
+    event.preventDefault();
+
+    const workerId = $('salaryWorker').value;
+    const date = $('salaryDate').value;
+    const presentDays = Number($('salaryPresentDays').value);
+    const dailyWage = Number($('salaryDailyWage').value);
+    const overtime = Number($('salaryOvertime').value || 0);
+    const advance = Number($('salaryAdvance').value || 0);
+    const status = $('salaryStatus').value;
+
+    if (!workerId || !date) {
+        showToast('Select a worker and salary date.', 'error');
+        return;
+    }
+
+    if (![presentDays, dailyWage, overtime, advance].every(Number.isFinite)
+        || presentDays < 0 || presentDays > 31
+        || dailyWage < 0 || overtime < 0 || advance < 0) {
+        showToast('Enter valid salary values.', 'error');
+        return;
+    }
+
+    try {
+        await apiRequest('/api/worker-payroll/give-salary', jsonRequest('POST', {
+            workerId, date, presentDays, dailyWage, overtime, advance, status
+        }));
+
+        const d = new Date(`${date}T12:00:00`);
+        $('monthFilter').value = MONTHS[d.getMonth()];
+        $('yearFilter').value = String(d.getFullYear());
+
+        $('giveSalaryModal').style.display = 'none';
+        showToast('Salary saved successfully.');
+        await loadWorkerPayroll();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ==================== EDIT SALARY ====================
+
+async function openEditSalaryModal(id) {
+    try {
+        const r = await apiRequest(`/api/worker-payroll/${encodeURIComponent(id)}`);
+
+        $('editWorkerName').value = r.name || '';
+        $('editWorkerCategory').value = r.category || '';
+        $('editPresentDays').value = r.presentDays ?? 0;
+        $('editDailyWage').value = r.dailyWage ?? 0;
+        $('editOvertime').value = r.overtime ?? 0;
+        $('editAdvance').value = r.advance ?? 0;
+        $('editSalaryDate').value = dateForInput(r.salaryDate);
+        $('editStatus').value = r.status || 'Pending';
+        $('editSalaryForm').dataset.id = id;
+
+        calculateEditSalary();
+        $('editSalaryModal').style.display = 'block';
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function calculateEditSalary() {
+    const amount = calculateSalary(
+        $('editPresentDays').value,
+        $('editDailyWage').value,
+        $('editOvertime').value,
+        $('editAdvance').value
+    );
+
+    $('editNetSalary').value = `₹${money(amount)}`;
+}
+
+async function updateWorkerSalary(event) {
+    event.preventDefault();
+
+    const id = $('editSalaryForm').dataset.id;
+    const salaryDate = $('editSalaryDate').value;
+
+    const presentDays = Number($('editPresentDays').value);
+    const dailyWage = Number($('editDailyWage').value);
+    const overtime = Number($('editOvertime').value || 0);
+    const advance = Number($('editAdvance').value || 0);
+    const status = $('editStatus').value;
+
+    if (!id || !salaryDate) {
+        showToast('Salary record and date are required.', 'error');
+        return;
+    }
+
+    try {
+        await apiRequest(`/api/worker-payroll/${encodeURIComponent(id)}`,
+            jsonRequest('PUT', {
+                presentDays, dailyWage, overtime, advance, status, salaryDate
+            }));
+
+        const d = new Date(`${salaryDate}T12:00:00`);
+        $('monthFilter').value = MONTHS[d.getMonth()];
+        $('yearFilter').value = String(d.getFullYear());
+
+        $('editSalaryModal').style.display = 'none';
+        showToast('Salary updated successfully.');
+        await loadWorkerPayroll();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ==================== GENERATE PAYROLL ====================
+
+function generatePayroll() {
+    $('payrollMonthSelect').value =
+        $('monthFilter').value || MONTHS[new Date().getMonth()];
+
+    $('payrollYear').value =
+        $('yearFilter').value || String(new Date().getFullYear());
+
+    $('generateModal').style.display = 'block';
+}
+
+async function generateWorkerPayroll(month, year) {
+    try {
+        const result = await apiRequest('/api/worker-payroll/generate',
+            jsonRequest('POST', { month, year: Number(year) }));
+
+        $('generateModal').style.display = 'none';
+        $('monthFilter').value = month;
+        $('yearFilter').value = String(year);
+
+        showToast(result.message || 'Payroll generated.');
+        await loadWorkerPayroll();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ==================== PAYSLIP ====================
+
+async function viewWorkerPayslip(id) {
+    try {
+        const r = await apiRequest(`/api/worker-payroll/${encodeURIComponent(id)}`);
+        currentPayslip = r;
+
+        $('payslipData').innerHTML = `
+            <div style="text-align:center;margin-bottom:20px">
+                <h2>SiteForce</h2><h3>Worker Payslip</h3>
+                <p>${escapeHTML(r.month || '')} ${escapeHTML(r.year || '')}</p>
+            </div>
+            <p><strong>Worker:</strong> ${escapeHTML(r.name)}</p>
+            <p><strong>Worker ID:</strong> ${escapeHTML(r.workerIdNumber || 'N/A')}</p>
+            <p><strong>Category:</strong> ${escapeHTML(r.category || 'Worker')}</p>
+            <p><strong>Project:</strong> ${escapeHTML(r.project || 'N/A')}</p>
+            <p><strong>Salary Date:</strong> ${escapeHTML(formatDate(r.salaryDate))}</p>
+            <p><strong>Present Days:</strong> ${Number(r.presentDays || 0)}</p>
+            <p><strong>Daily Wage:</strong> ₹${money(r.dailyWage)}</p>
+            <p><strong>Overtime:</strong> ₹${money(r.overtime)}</p>
+            <p><strong>Advance:</strong> ₹${money(r.advance)}</p>
+            <hr><h3>Net Salary: ₹${money(r.netSalary)}</h3>
+            <p><strong>Status:</strong> ${escapeHTML(r.status)}</p>`;
+
+        $('payslipModal').style.display = 'block';
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function downloadPayslip() {
+    if (!currentPayslip) {
+        showToast('Open a payslip first.', 'error');
+        return;
+    }
+
+    const win = window.open('', '_blank');
+    if (!win) {
+        showToast('Allow pop-ups to print the payslip.', 'error');
+        return;
+    }
+
+    win.document.write(`<!DOCTYPE html><html><head><title>Worker Payslip</title>
+        <meta charset="UTF-8"><style>
+        body{font-family:Arial,sans-serif;max-width:700px;margin:30px auto;line-height:1.8}
+        </style></head><body>${$('payslipData').innerHTML}
+        <script>window.onload=()=>window.print();<\/script></body></html>`);
+    win.document.close();
+}
+
+// ==================== DELETE ====================
+
+async function deletePayrollRecord(id) {
+    if (!confirm('Are you sure you want to delete this salary record?')) return;
+
+    try {
+        await apiRequest(`/api/worker-payroll/${encodeURIComponent(id)}`, {
+            method: 'DELETE'
+        });
+
+        showToast('Payroll record deleted.');
+        await loadWorkerPayroll();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ==================== EXPORT ====================
+
+function exportPayroll() {
+    if (!allPayrollData.length) {
+        showToast('No payroll records to export.', 'error');
+        return;
+    }
+
+    const rows = allPayrollData.map(r => ({
+        'Worker Name': r.name || '',
+        'Worker ID': r.workerIdNumber || '',
+        'Category': r.category || '',
+        'Project': r.project || '',
+        'Present Days': r.presentDays || 0,
+        'Daily Wage': r.dailyWage || 0,
+        'Overtime': r.overtime || 0,
+        'Advance': r.advance || 0,
+        'Net Salary': r.netSalary || 0,
+        'Status': r.status || '',
+        'Date': formatDate(r.salaryDate)
+    }));
+
+    if (window.XLSX) {
+        const sheet = XLSX.utils.json_to_sheet(rows);
+        const book = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(book, sheet, 'Payroll');
+
+        XLSX.writeFile(book,
+            `payroll_${$('monthFilter').value || 'all'}_${$('yearFilter').value || 'all'}.xlsx`);
+        return;
+    }
+
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(','), ...rows.map(row =>
+        headers.map(h => `"${String(row[h] ?? '').replace(/"/g, '""')}"`).join(',')
+    )].join('\r\n');
+
+    const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'worker_payroll.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ==================== REFRESH / NOTIFICATIONS ====================
+
+async function refreshData() {
+    const button = $('refreshBtn');
+
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Refreshing';
+    }
+
+    try {
+        await Promise.all([
+            loadWorkersForDropdown(),
+            loadProjectsForFilters(),
+            loadSalarySettings()
+        ]);
+        await loadWorkerPayroll();
+        showToast('Payroll refreshed.');
+    } catch (error) {
+        showToast(error.message, 'error');
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fa-solid fa-sync"></i> Refresh';
+        }
+    }
+}
+
+async function loadNotifications() {
+    try {
+        const response = await fetch('/api/admins/notifications');
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!Array.isArray(data)) return;
+
+        const unread = data.filter(n => !n.read).length;
+        setText('notificationBadge', unread);
+        if ($('notificationBadge')) {
+            $('notificationBadge').style.display = unread ? 'flex' : 'none';
+        }
+    } catch (error) {
+        console.error('Notifications error:', error);
+    }
+}
+
+function markNotificationRead() {
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.classList.remove('unread');
+        item.classList.add('read');
+    });
+    setText('notificationBadge', '0');
+}
+
+function markAllRead() {
+    markNotificationRead();
+}
+
+// ==================== INITIALIZATION ====================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    let user = {};
+
+    try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {}
+
+    if (!user.name) {
+        window.location.href = '/';
+        return;
+    }
+
+    setText('userName', user.name);
+
+    if ($('currentDate')) {
+        $('currentDate').textContent =
+            new Date().toLocaleDateString('en-IN', {
+                weekday: 'long', day: '2-digit',
+                month: 'long', year: 'numeric'
+            }) + ' · All sites';
+    }
+
+    const navigation = {
+        admindashBtn: '/admin-dashboard',
+        workersmangBtn: '/workersmang',
+        workerattendBtn: '/workerattend',
+        aprojectsBtn: '/kaam',
+        areportsBtn: '/areports',
+        settingsBtnTop: '/settings'
+    };
+
+    Object.entries(navigation).forEach(([id, url]) => {
+        $(id)?.addEventListener('click', event => {
+            event.preventDefault();
+            window.location.href = url;
+        });
+    });
+
+    $('logoutBtn')?.addEventListener('click', event => {
+        event.preventDefault();
+        if (confirm('Do you want to log out?')) {
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+    });
+
+    const modalIds = [
+        'giveSalaryModal', 'editSalaryModal', 'payslipModal',
+        'generateModal', 'categorySalaryModal'
+    ];
+
+    document.querySelectorAll('.close').forEach(button => {
+        button.addEventListener('click', () => {
+            modalIds.forEach(id => {
+                if ($(id)) $(id).style.display = 'none';
+            });
+        });
+    });
+
+    window.addEventListener('click', event => {
+        modalIds.forEach(id => {
+            if (event.target === $(id)) $(id).style.display = 'none';
+        });
+    });
+
+    $('giveSalaryForm')?.addEventListener('submit', giveSalary);
+    $('editSalaryForm')?.addEventListener('submit', updateWorkerSalary);
+
+    $('generateForm')?.addEventListener('submit', event => {
+        event.preventDefault();
+        generateWorkerPayroll($('payrollMonthSelect').value, $('payrollYear').value);
+    });
+
+    $('categorySalaryForm')?.addEventListener('submit', event => {
+        event.preventDefault();
+        updateCategorySalary(
+            $('categorySalaryName').value,
+            Number($('categoryDailyWage').value)
+        );
+    });
+
+    $('categoryDailyWage')?.addEventListener('input', updateCategoryMonthlySalary);
+
+    [
+        'salaryPresentDays', 'salaryDailyWage', 'salaryOvertime', 'salaryAdvance'
+    ].forEach(id => $(id)?.addEventListener('input', calculateGiveSalary));
+
+    [
+        'editPresentDays', 'editDailyWage', 'editOvertime', 'editAdvance'
+    ].forEach(id => $(id)?.addEventListener('input', calculateEditSalary));
+
+    // Month and year changes immediately reload the correct records.
+    ['monthFilter', 'yearFilter'].forEach(id => {
+        $(id)?.addEventListener('change', () => {
+            currentPage = 1;
+            loadWorkerPayroll();
+        });
+    });
+
+    ['statusFilter', 'categoryFilter', 'projectFilter'].forEach(id => {
+        $(id)?.addEventListener('change', () => {
+            currentPage = 1;
+            loadWorkerPayroll();
+        });
+    });
+
+    function scheduleSearch() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            currentPage = 1;
+            loadWorkerPayroll();
+        }, 250);
+    }
+
+    $('searchPayroll')?.addEventListener('input', scheduleSearch);
+
+    $('globalSearch')?.addEventListener('input', () => {
+        if ($('searchPayroll')) $('searchPayroll').value = $('globalSearch').value;
+        scheduleSearch();
+    });
+
+    $('prevPage')?.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPayrollTable();
+        }
+    });
+
+    $('nextPage')?.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderPayrollTable();
+        }
+    });
+
+    $('refreshBtn')?.addEventListener('click', refreshData);
+
+    if ($('salaryDate')) $('salaryDate').value = getToday();
+
+    await Promise.all([
+        loadWorkersForDropdown(),
+        loadProjectsForFilters(),
+        loadSalarySettings()
+    ]);
+
+    await loadWorkerPayroll();
+    await loadNotifications();
+
+    console.log('SiteForce payroll initialized.');
+});
+
+// Functions called by HTML onclick attributes.
+window.openGiveSalaryModal = openGiveSalaryModal;
+window.generatePayroll = generatePayroll;
+window.exportPayroll = exportPayroll;
+window.openEditSalaryModal = openEditSalaryModal;
+window.viewWorkerPayslip = viewWorkerPayslip;
+window.downloadPayslip = downloadPayslip;
+window.deletePayrollRecord = deletePayrollRecord;
+window.openCategorySalaryModal = openCategorySalaryModal;
+window.markNotificationRead = markNotificationRead;
+window.markAllRead = markAllRead;
+window.refreshData = refreshData;
+window.loadWorkerPayroll = loadWorkerPayroll;

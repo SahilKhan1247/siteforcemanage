@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Projects</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/projects.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="admindashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workersmangBtn">
+                        <i class="fa-solid fa-users"></i> Workers Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workerattendBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Worker Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="areportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="wpayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Projects</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search projects, clients or locations..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="setting">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Yogesh&background=2563eb&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Sahil</h4>
+                            <small>Admin</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PROJECTS BANNER -->
+            <section class="projects-banner">
+                <div class="banner-left">
+                    <h2>Active Projects</h2>
+                    <p>Monitor progress, workforce and budgets across every site.</p>
+                </div>
+                <button class="btn-add-project" id="addProjectBtn">
+                    <i class="fa-solid fa-plus"></i> Add New Project
+                </button>
+            </section>
+
+            <!-- PROJECTS GRID -->
+            <section class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </section>
+
+            <!-- PROJECTS FOOTER -->
+            <div class="projects-footer">
+                <div class="footer-left">
+                    <span id="projectsCount">0 projects</span>
+                </div>
+                <div class="footer-right">
+                    <button class="btn-filter active">All Statuses</button>
+                    <button class="btn-filter">On Track</button>
+                    <button class="btn-filter">At Risk</button>
+                    <button class="btn-filter">Delayed</button>
+                    <button class="btn-filter">Completed</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ==================== ADD/EDIT PROJECT MODAL ==================== -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Project</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="projectForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Project Name <span style="color: var(--red);">*</span></label>
+                        <input type="text" id="projectName" required placeholder="Enter project name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Client <span style="color: var(--red);">*</span></label>
+                        <input type="text" id="projectClient" required placeholder="Enter client name" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location <span style="color: var(--red);">*</span></label>
+                        <input type="text" id="projectLocation" required placeholder="City, State" />
+                    </div>
+                    <div class="form-group">
+                        <label>Supervisor <span style="color: var(--red);">*</span></label>
+                        <input type="text" id="projectSupervisor" required placeholder="Supervisor name" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date <span style="color: var(--red);">*</span></label>
+                        <input type="date" id="projectStart" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Completion Date</label>
+                        <input type="date" id="projectCompletion" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Progress (%) <span style="color: var(--red);">*</span></label>
+                        <input type="number" id="projectProgress" required min="0" max="100" placeholder="0-100" />
+                    </div>
+                    <div class="form-group">
+                        <label>Budget (₹ Cr) <span style="color: var(--red);">*</span></label>
+                        <input type="number" id="projectBudget" required step="0.1" placeholder="Enter budget in Crores" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="projectType" required>
+                            <option value="Residential">Residential</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                            <option value="Warehouse & Logistics">Warehouse & Logistics</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="projectStatus" required>
+                            <option value="On Track">On Track</option>
+                            <option value="At Risk">At Risk</option>
+                            <option value="Delayed">Delayed</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fa-solid fa-plus"></i> Add Project
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/projects.js"></script>
+
+</body>
+</html>

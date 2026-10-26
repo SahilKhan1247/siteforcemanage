@@ -1,0 +1,327 @@
+/* ============================================================
+   GLOBAL THEME VARIABLES - LIGHT & DARK
+   ============================================================ */
+
+/* LIGHT THEME (Default) */
+:root {
+    --bg: #f5f7fb;
+    --surface: #ffffff;
+    --border: #eaecf0;
+    --text-dark: #101828;
+    --text-muted: #667085;
+    --text-faint: #98a2b3;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 12px rgba(16, 24, 40, 0.04);
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --hover-bg: #f5f7fb;
+    --modal-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --table-stripe: #f9fafb;
+}
+
+/* DARK THEME */
+body.dark-theme {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #334155;
+    --text-dark: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-faint: #64748b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 12px rgba(0, 0, 0, 0.3);
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
+    --hover-bg: #0f172a;
+    --modal-bg: #1e293b;
+    --dropdown-bg: #1e293b;
+    --table-stripe: #0f172a;
+}
+
+/* ============================================================
+   GLOBAL DARK THEME OVERRIDES
+   ============================================================ */
+
+/* Cards */
+body.dark-theme .card,
+body.dark-theme .stat-card,
+body.dark-theme .settings-card,
+body.dark-theme .chart-card,
+body.dark-theme .attendance-card,
+body.dark-theme .project-card,
+body.dark-theme .payroll-card,
+body.dark-theme .help-card,
+body.dark-theme .activity-section,
+body.dark-theme .project-attendance,
+body.dark-theme .recent-reports,
+body.dark-theme .salary-settings,
+body.dark-theme .payroll-table-section,
+body.dark-theme .admin-section,
+body.dark-theme .worker-section,
+body.dark-theme .attendance-table-section {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+/* Sidebar */
+body.dark-theme .sidebar {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+body.dark-theme .sidebar-menu li a {
+    color: var(--text-muted);
+}
+
+body.dark-theme .sidebar-menu li a:hover {
+    background: var(--hover-bg);
+    color: var(--text-dark);
+}
+
+body.dark-theme .sidebar-menu li a.active {
+    background: #1e3a5f;
+    color: var(--blue);
+}
+
+/* Topbar */
+body.dark-theme .topbar {
+    border-color: var(--border);
+}
+
+body.dark-theme .search-box {
+    background: var(--input-bg);
+    border-color: var(--border);
+}
+
+body.dark-theme .search-box input {
+    color: var(--text-dark);
+}
+
+body.dark-theme .search-box input::placeholder {
+    color: var(--text-faint);
+}
+
+/* Tables */
+body.dark-theme table thead th {
+    color: var(--text-faint);
+    border-color: var(--border);
+}
+
+body.dark-theme table tbody td {
+    border-color: var(--border);
+    color: var(--text-dark);
+}
+
+body.dark-theme table tbody tr:hover {
+    background: var(--hover-bg);
+}
+
+body.dark-theme table tbody tr:nth-child(even) {
+    background: var(--table-stripe);
+}
+
+/* Modals */
+body.dark-theme .modal-content {
+    background: var(--modal-bg);
+    border-color: var(--border);
+}
+
+body.dark-theme .modal-header {
+    border-color: var(--border);
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group select {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text-dark);
+}
+
+body.dark-theme .form-group input:focus,
+body.dark-theme .form-group select:focus {
+    border-color: var(--blue);
+}
+
+/* Notification Dropdown */
+body.dark-theme .notification-dropdown {
+    background: var(--dropdown-bg);
+    border-color: var(--border);
+}
+
+body.dark-theme .dropdown-header {
+    background: var(--hover-bg);
+}
+
+body.dark-theme .notification-item {
+    border-color: var(--border);
+}
+
+body.dark-theme .notification-item:hover {
+    background: var(--hover-bg);
+}
+
+body.dark-theme .notification-item.unread {
+    background: #1e3a5f;
+}
+
+body.dark-theme .notification-item.unread:hover {
+    background: #1a3a6a;
+}
+
+/* Pagination */
+body.dark-theme .pagination-buttons button {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+body.dark-theme .pagination-buttons button:hover:not(:disabled):not(.active) {
+    background: var(--hover-bg);
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+body.dark-theme .pagination-buttons .page-number.active {
+    background: var(--blue);
+    color: #fff;
+}
+
+/* Buttons */
+body.dark-theme .btn-filter {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+body.dark-theme .btn-filter:hover {
+    background: var(--hover-bg);
+    color: var(--text-dark);
+}
+
+body.dark-theme .btn-filter.active {
+    background: var(--blue);
+    color: #fff;
+}
+
+/* Stats Boxes */
+body.dark-theme .stat-box,
+body.dark-theme .settings-card-header,
+body.dark-theme .about-item {
+    background: var(--hover-bg);
+}
+
+/* Badges */
+body.dark-theme .status-badge {
+    color: var(--text-dark);
+}
+
+body.dark-theme .status-badge.active,
+body.dark-theme .status-badge.present,
+body.dark-theme .status-badge.paid {
+    background: #065f46;
+    color: #34d399;
+}
+
+body.dark-theme .status-badge.inactive,
+body.dark-theme .status-badge.absent {
+    background: #7f1d1d;
+    color: #f87171;
+}
+
+body.dark-theme .status-badge.on-leave,
+body.dark-theme .status-badge.late {
+    background: #78350f;
+    color: #fbbf24;
+}
+
+body.dark-theme .status-badge.processing {
+    background: #1e3a5f;
+    color: #60a5fa;
+}
+
+/* Role Badges */
+body.dark-theme .role-badge.super-admin {
+    background: #78350f;
+    color: #fbbf24;
+}
+
+body.dark-theme .role-badge.project-admin {
+    background: #1e3a5f;
+    color: #60a5fa;
+}
+
+body.dark-theme .role-badge.site-admin {
+    background: #065f46;
+    color: #34d399;
+}
+
+/* Toast */
+body.dark-theme .toast {
+    background: var(--surface);
+    color: var(--text-dark);
+    border: 1px solid var(--border);
+}
+
+body.dark-theme .toast.success {
+    background: #065f46;
+    color: #fff;
+}
+
+body.dark-theme .toast.error {
+    background: #7f1d1d;
+    color: #fff;
+}
+
+body.dark-theme .toast.info {
+    background: #1e3a5f;
+    color: #fff;
+}
+
+/* Settings specific */
+body.dark-theme .settings-tabs {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+body.dark-theme .tab-btn {
+    color: var(--text-muted);
+}
+
+body.dark-theme .tab-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-dark);
+}
+
+body.dark-theme .tab-btn.active {
+    background: var(--blue);
+    color: #fff;
+}
+
+body.dark-theme .setting-item input,
+body.dark-theme .setting-item select {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text-dark);
+}
+
+body.dark-theme .setting-item input:focus,
+body.dark-theme .setting-item select:focus {
+    border-color: var(--blue);
+}
+
+/* Scrollbar */
+body.dark-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.dark-theme ::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-faint);
+}

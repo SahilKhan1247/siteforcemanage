@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Reports</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/reports.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="ownerdashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminsmanBtn">
+                        <i class="fa-solid fa-user-shield"></i> Admins Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="adminattendanceBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Admin Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="projectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="apayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="settingsBtn">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Reports</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search reports, projects..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="setting" id="settingsBtnTop">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Sahil&background=7c3aed&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Sahil</h4>
+                            <small>Owner</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- REPORTS BANNER -->
+            <section class="reports-banner">
+                <h2>Reports Dashboard</h2>
+                <p>Generate, visualise and export workforce reports.</p>
+                <div class="banner-actions">
+                    <button class="btn-generate" id="generateReportBtn">
+                        <i class="fa-solid fa-plus"></i> Generate New Report
+                    </button>
+                    <button class="btn-export-all" id="exportAllBtn">
+                        <i class="fa-solid fa-file-export"></i> Export All Data
+                    </button>
+                    <button class="btn-refresh" id="refreshBtn">
+                        <i class="fa-solid fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn-announcements" id="announcementsBtn">
+                        <i class="fa-solid fa-bell"></i> Announcements
+                    </button>
+                </div>
+            </section>
+
+            <!-- STATS CARDS - REAL TIME -->
+            <section class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Today's Attendance</h4>
+                        <h2 id="todayAttendance">0</h2>
+                        <span>of <span id="totalWorkers">0</span> workers</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fa-solid fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Weekly Attendance</h4>
+                        <h2 id="weeklyAttendance">0%</h2>
+                        <span>avg. this week</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fa-solid fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Monthly Attendance</h4>
+                        <h2 id="monthlyAttendance">0%</h2>
+                        <span>Current month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Total Payroll</h4>
+                        <h2 id="totalPayroll">₹0</h2>
+                        <span>this month</span>
+                    </div>
+                </div>
+                <!-- NEW CARDS -->
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fa-solid fa-user-xmark"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Today Absent</h4>
+                        <h2 id="todayAbsent">0</h2>
+                        <span>workers absent</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Today Late</h4>
+                        <h2 id="todayLate">0</h2>
+                        <span>workers late</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cyan">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Active Projects</h4>
+                        <h2 id="activeProjects">0</h2>
+                        <span>ongoing projects</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Total Admins</h4>
+                        <h2 id="totalAdmins">0</h2>
+                        <span>registered admins</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHARTS SECTION - REAL TIME -->
+            <section class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Attendance Trend</h2>
+                        <p>Present vs absent rate over the last four weeks</p>
+                    </div>
+                    <canvas id="attendanceTrendChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Category-wise Attendance</h2>
+                        <p>Present workers grouped by trade</p>
+                    </div>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </section>
+
+            <!-- PROJECT WISE ATTENDANCE - REAL TIME -->
+            <section class="project-attendance">
+                <div class="section-header">
+                    <h2>Project-wise Attendance</h2>
+                    <p>Average attendance rate per active project</p>
+                </div>
+                <div class="project-list" id="projectList">
+                    <p style="color: var(--text-muted); padding: 16px;">Loading projects...</p>
+                </div>
+            </section>
+
+            <!-- RECENT REPORTS - REAL TIME -->
+            <section class="recent-reports">
+                <div class="section-header">
+                    <h2>Recent Reports</h2>
+                    <p>Recently generated documents ready to download</p>
+                </div>
+                <div class="reports-list" id="reportsList">
+                    <div class="report-item">
+                        <div class="report-info">
+                            <i class="fa-regular fa-file-pdf"></i>
+                            <div class="report-details">
+                                <h4>No reports generated yet</h4>
+                                <p>Click "Generate New Report" to create one</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- GENERATE REPORT MODAL -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Report</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="reportForm">
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select id="reportType" required>
+                        <option value="daily">Daily Attendance</option>
+                        <option value="weekly">Weekly Summary</option>
+                        <option value="monthly">Monthly Payroll</option>
+                        <option value="custom">Custom Report</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="reportStartDate" required />
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="reportEndDate" required />
+                </div>
+                <div class="form-group">
+                    <label>Site</label>
+                    <select id="reportSite">
+                        <option value="all">All Sites</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" id="generateSubmitBtn">
+                    <i class="fa-solid fa-file-pdf"></i> Generate Report
+                </button>
+            </form>
+        </div>
+    </div>
+
+        <!-- ANNOUNCEMENT MODAL -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Announcement</h2>
+                <span class="close" onclick="document.getElementById('announcementModal').style.display='none'">&times;</span>
+            </div>
+            <form id="announcementForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="annTitle" required placeholder="e.g., Holiday Notice" />
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="annMessage" required rows="4" placeholder="Write your message here..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-paper-plane"></i> Send Announcement
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- NOTIFICATION DROPDOWN (Added by JS) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/js/reports.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SiteForce - Admin Attendance Management</title>
+
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/css/adminattend.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ============================================================
+         SIDEBAR
+    ============================================================ -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-hard-hat"></i>
+
+            <div>
+                <h1>Site<span>Force</span></h1>
+                <small>Worker Suite</small>
+            </div>
+        </div>
+
+        <div class="sidebar-label">Navigation</div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="#" id="ownerdashBtn">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="adminsmanBtn">
+                    <i class="fa-solid fa-user-shield"></i>
+                    Admins Manage
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="active">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    Admin Attendance
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="projectsBtn">
+                    <i class="fa-solid fa-hard-hat"></i>
+                    Projects
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="reportsBtn">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="apayrollBtn">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    Payroll
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="settingsBtn">
+                    <i class="fa-solid fa-gear"></i>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="logoutBtn" style="color: var(--red);">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="sidebar-footer">
+            <i class="fa-regular fa-circle"></i>
+            v2.4.1
+        </div>
+
+    </aside>
+
+
+    <!-- ============================================================
+         MAIN CONTENT
+    ============================================================ -->
+    <main class="main">
+
+        <!-- ========================================================
+             TOPBAR
+        ======================================================== -->
+        <header class="topbar">
+
+            <div class="page-info">
+
+                <h2>Admin Attendance Management</h2>
+
+                <p id="currentDate">Loading...</p>
+
+            </div>
+
+
+            <!-- GLOBAL SEARCH -->
+            <div class="search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="globalSearch"
+                    placeholder="Search admins, projects..."
+                />
+
+            </div>
+
+
+            <!-- TOP RIGHT -->
+            <div class="top-right">
+
+                <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" style="display: none;">0</span>
+                </div>
+
+
+                <div class="setting" id="settingsBtnTop">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <img
+                        src="https://ui-avatars.com/api/?name=Sahil&background=2563eb&color=fff"
+                        alt="Profile"
+                    />
+
+                    <div class="profile-text">
+
+                        <h4>Sahil</h4>
+
+                        <small>Owner</small>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ========================================================
+             ATTENDANCE CARDS
+        ======================================================== -->
+        <section class="attendance-cards">
+
+            <!-- TOTAL ADMINS -->
+            <div class="attendance-card">
+
+                <div class="card-icon blue">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+
+                <div class="card-content">
+
+                    <h4>Total Admins</h4>
+
+                    <h2 id="totalAdmins">0</h2>
+
+                    <span
+                        class="trend up"
+                        id="totalAdminsTrend"
+                    >
+                        ↑ Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRESENT -->
+            <div class="attendance-card">
+
+                <div class="card-icon green">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+
+                <div class="card-content">
+
+                    <h4>Present Today</h4>
+
+                    <h2 id="presentToday">0</h2>
+
+                    <span
+                        class="trend up"
+                        id="presentTrend"
+                    >
+                        ↑ Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ABSENT -->
+            <div class="attendance-card">
+
+                <div class="card-icon red">
+                    <i class="fa-solid fa-user-xmark"></i>
+                </div>
+
+                <div class="card-content">
+
+                    <h4>Absent Today</h4>
+
+                    <h2 id="absentToday">0</h2>
+
+                    <span
+                        class="trend down"
+                        id="absentTrend"
+                    >
+                        ↓ Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- LATE -->
+            <div class="attendance-card">
+
+                <div class="card-icon orange">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+
+                <div class="card-content">
+
+                    <h4>Late Today</h4>
+
+                    <h2 id="lateToday">0</h2>
+
+                    <span
+                        class="trend down"
+                        id="lateTrend"
+                    >
+                        ↓ Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================================
+             CHARTS
+        ======================================================== -->
+        <section class="chart-section">
+
+            <!-- WEEKLY CHART -->
+            <div class="chart-card">
+
+                <div class="chart-header">
+
+                    <h2>Weekly Admin Attendance</h2>
+
+                    <p>
+                        Present vs absent admins this week
+                    </p>
+
+                </div>
+
+                <canvas id="weeklyChart"></canvas>
+
+            </div>
+
+
+            <!-- MONTHLY CHART -->
+            <div class="chart-card">
+
+                <div class="chart-header">
+
+                    <h2>Monthly Admin Attendance</h2>
+
+                    <p>
+                        Average attendance rate over the year
+                    </p>
+
+                    <span
+                        class="avg-badge"
+                        id="avgBadge"
+                    >
+                        Avg 0%
+                    </span>
+
+                </div>
+
+                <canvas id="monthlyChart"></canvas>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================================
+             ATTENDANCE TABLE
+        ======================================================== -->
+        <section class="admin-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>Today's Admin Attendance</h2>
+
+                    <p>
+                        Real-time attendance status of all admins
+                    </p>
+
+                </div>
+
+
+                <div class="header-buttons">
+
+                    <!-- FILTER -->
+                    <button
+                        class="btn-filter"
+                        id="filterBtn"
+                    >
+                        <i class="fa-solid fa-filter"></i>
+                        Filter
+                    </button>
+
+
+                    <!-- EXPORT -->
+                    <button
+                        class="btn-export"
+                        id="exportAttendance"
+                    >
+                        <i class="fa-solid fa-file-export"></i>
+                        Export Excel
+                    </button>
+
+
+                    <!-- MARK ATTENDANCE -->
+                    <button
+                        class="btn-add"
+                        id="markAttendanceBtn"
+                    >
+                        <i class="fa-regular fa-calendar-check"></i>
+                        Mark Attendance
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ====================================================
+                 FILTERS
+            ==================================================== -->
+            <div
+                class="filters"
+                id="filtersContainer"
+            >
+
+                <!-- SEARCH -->
+                <div class="search-input">
+
+                    <i class="fa-solid fa-search"></i>
+
+                    <input
+                        type="text"
+                        id="searchAttendance"
+                        placeholder="Search by name, ID or project..."
+                    />
+
+                </div>
+
+
+                <!-- STATUS -->
+                <select id="statusFilter">
+
+                    <option value="">
+                        All Status
+                    </option>
+
+                    <option value="Present">
+                        Present
+                    </option>
+
+                    <option value="Absent">
+                        Absent
+                    </option>
+
+                    <option value="Late">
+                        Late
+                    </option>
+
+                    <option value="On Leave">
+                        On Leave
+                    </option>
+
+                </select>
+
+
+                <!-- ROLE -->
+                <select id="roleFilter">
+
+                    <option value="">
+                        All Roles
+                    </option>
+
+                    <option value="Super Admin">
+                        Super Admin
+                    </option>
+
+                    <option value="Project Admin">
+                        Project Admin
+                    </option>
+
+                    <option value="Site Admin">
+                        Site Admin
+                    </option>
+
+                </select>
+
+
+                <!-- PROJECT -->
+                <select id="projectFilter">
+
+                    <option value="">
+                        All Projects
+                    </option>
+
+                </select>
+
+
+                <!-- =================================================
+                     IMPORTANT CHANGE
+                     Today's date will be inserted automatically
+                ================================================== -->
+                <input
+                    type="date"
+                    id="dateFilter"
+                />
+
+            </div>
+
+
+            <!-- ====================================================
+                 TABLE
+            ==================================================== -->
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Photo</th>
+                            <th>Admin ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Project</th>
+                            <th>Date</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="attendanceTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="9"
+                                style="
+                                    text-align:center;
+                                    padding:40px;
+                                    color:var(--text-muted);
+                                "
+                            >
+
+                                <i
+                                    class="fa-solid fa-spinner fa-spin"
+                                    style="
+                                        font-size:24px;
+                                        display:block;
+                                        margin-bottom:8px;
+                                    "
+                                ></i>
+
+                                Loading attendance records...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ====================================================
+                 PAGINATION
+            ==================================================== -->
+            <div class="pagination">
+
+                <span id="entriesInfo">
+                    Showing 0 to 0 of 0 entries
+                </span>
+
+                <div class="pagination-buttons">
+
+                    <button
+                        id="prevPage"
+                        disabled
+                    >
+                        <i class="fa-solid fa-chevron-left"></i>
+                        Prev
+                    </button>
+
+
+                    <button
+                        class="page-number active"
+                    >
+                        1
+                    </button>
+
+                    <button class="page-number">
+                        2
+                    </button>
+
+                    <button class="page-number">
+                        3
+                    </button>
+
+
+                    <button id="nextPage">
+
+                        Next
+
+                        <i class="fa-solid fa-chevron-right"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ================================================================
+     MARK ATTENDANCE MODAL
+================================================================ -->
+<div
+    id="attendanceModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>
+                📝 Mark Admin Attendance
+            </h2>
+
+            <span class="close">
+                &times;
+            </span>
+
+        </div>
+
+
+        <form id="attendanceForm">
+
+            <!-- ADMIN -->
+            <div class="form-group">
+
+                <label>
+                    Admin
+                </label>
+
+                <select
+                    id="attendanceAdmin"
+                    required
+                >
+
+                    <option value="">
+                        Select Admin
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- DATE -->
+            <div class="form-group">
+
+                <label>
+                    Date
+                </label>
+
+                <input
+                    type="text"
+                    id="attendanceDate"
+                    required
+                    placeholder="dd-mm-yyyy"
+                />
+
+            </div>
+
+
+            <!-- CHECK IN -->
+            <div class="form-group">
+
+                <label>
+                    Check In Time
+                </label>
+
+                <input
+                    type="time"
+                    id="checkInTime"
+                    required
+                />
+
+            </div>
+
+
+            <!-- CHECK OUT -->
+            <div class="form-group">
+
+                <label>
+                    Check Out Time
+                </label>
+
+                <input
+                    type="time"
+                    id="checkOutTime"
+                />
+
+            </div>
+
+
+            <!-- STATUS -->
+            <div class="form-group">
+
+                <label>
+                    Status
+                </label>
+
+                <select
+                    id="attendanceStatus"
+                    required
+                >
+
+                    <option value="Present">
+                        Present
+                    </option>
+
+                    <option value="Absent">
+                        Absent
+                    </option>
+
+                    <option value="Late">
+                        Late
+                    </option>
+
+                    <option value="On Leave">
+                        On Leave
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SUBMIT -->
+            <button
+                type="submit"
+                class="btn-submit"
+            >
+
+                <i class="fa-regular fa-calendar-check"></i>
+                Mark Attendance
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================================
+     JAVASCRIPT LIBRARIES
+================================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script src="/js/adminattend.js"></script>
+
+</body>
+</html>

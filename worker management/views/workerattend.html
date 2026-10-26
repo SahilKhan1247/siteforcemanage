@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Worker Attendance Management</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/workerattend.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="admindashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workersmangBtn">
+                        <i class="fa-solid fa-users"></i> Workers Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-regular fa-calendar-check"></i> Worker Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="aprojectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="areportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="wpayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Worker Attendance Management</h2>
+                    <p id="currentDate">Friday, 18 June 2026 · All sites</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search worker by name or ID..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="setting" id="settingsBtnTop">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Yogesh&background=7c3aed&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Yogesh</h4>
+                            <small>Admin</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ATTENDANCE BANNER -->
+            <section class="attendance-banner">
+                <h2>Worker Attendance Overview</h2>
+                <p>Track your workforce across every active construction site.</p>
+            </section>
+
+            <!-- STATS CARDS -->
+            <section class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Total Workers</h4>
+                        <h2 id="totalWorkers">0</h2>
+                        <span>Registered workers</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Present Today</h4>
+                        <h2 id="presentToday">0</h2>
+                        <span><span id="presentPercent">0%</span> attendance</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fa-solid fa-user-xmark"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Absent Today</h4>
+                        <h2 id="absentToday">0</h2>
+                        <span><span id="absentPercent">0%</span> absent</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>Late Today</h4>
+                        <h2 id="lateToday">0</h2>
+                        <span><span id="latePercent">0%</span> late</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHARTS -->
+            <section class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Weekly Worker Attendance</h2>
+                        <p>Present vs absent workers this week</p>
+                    </div>
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Monthly Worker Attendance</h2>
+                        <p>Average attendance rate over the year</p>
+                        <span class="avg-badge">Avg <span id="avgAttendance">0%</span></span>
+                    </div>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE TABLE -->
+            <section class="attendance-table-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Today's Worker Attendance</h2>
+                        <p>Real-time attendance status of all workers</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-filter" id="filterBtn">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                        <button class="btn-export" id="exportBtn">
+                            <i class="fa-solid fa-file-export"></i> Export
+                        </button>
+                        <button class="btn-mark" id="markAttendanceBtn">
+                            <i class="fa-regular fa-calendar-check"></i> Mark Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters" id="filtersContainer">
+                    <div class="search-input">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="searchAttendance" placeholder="Search by name, ID or project..." />
+                    </div>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Late">Late</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="Mason">Mason</option>
+                        <option value="Electrician">Electrician</option>
+                        <option value="Welder">Welder</option>
+                        <option value="Foreman">Foreman</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Site Engineer">Site Engineer</option>
+                        <option value="Plumber">Plumber</option>
+                        <option value="Painter">Painter</option>
+                        <option value="Driver">Driver</option>
+                    </select>
+                    <select id="projectFilter">
+                        <option value="">All Projects</option>
+                        <!-- Projects loaded dynamically -->
+                    </select>
+                    <input type="date" id="dateFilter" />
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Worker ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Project</th>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span id="entriesInfo">Showing 1 to 8 of 0 entries</span>
+                    <div class="pagination-buttons">
+                        <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <div id="pageNumbers"></div>
+                        <button id="nextPage">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MARK ATTENDANCE MODAL -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mark Worker Attendance</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="attendanceForm">
+                <div class="form-group">
+                    <label>Worker <span style="color: var(--red);">*</span></label>
+                    <select id="attendanceWorker" required>
+                        <option value="">Select Worker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date <span style="color: var(--red);">*</span></label>
+                    <input type="date" id="attendanceDate" required />
+                </div>
+                <div class="form-group">
+                    <label>Check In Time <span style="color: var(--red);">*</span></label>
+                    <input type="time" id="checkInTime" required />
+                </div>
+                <div class="form-group">
+                    <label>Check Out Time</label>
+                    <input type="time" id="checkOutTime" />
+                </div>
+                <div class="form-group">
+                    <label>Status <span style="color: var(--red);">*</span></label>
+                    <select id="attendanceStatus" required>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Late">Late</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-regular fa-calendar-check"></i> Mark Attendance
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT ATTENDANCE MODAL -->
+    <div id="editAttendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Worker Attendance</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editAttendanceForm">
+                <div class="form-group">
+                    <label>Worker</label>
+                    <input type="text" id="editWorkerName" readonly style="background: #f1f5f9;" />
+                </div>
+                <div class="form-group">
+                    <label>Date <span style="color: var(--red);">*</span></label>
+                    <input type="date" id="editAttendanceDate" required />
+                </div>
+                <div class="form-group">
+                    <label>Check In Time <span style="color: var(--red);">*</span></label>
+                    <input type="time" id="editCheckInTime" required />
+                </div>
+                <div class="form-group">
+                    <label>Check Out Time</label>
+                    <input type="time" id="editCheckOutTime" />
+                </div>
+                <div class="form-group">
+                    <label>Status <span style="color: var(--red);">*</span></label>
+                    <select id="editAttendanceStatus" required>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Late">Late</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-save"></i> Update Attendance
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION DROPDOWN (Added by JS) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/js/workerattend.js"></script>
+
+</body>
+</html>

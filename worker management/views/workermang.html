@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteForce - Worker Management</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/workermang.css">
+    <link rel="stylesheet" href="/css/global-theme.css">
+    <script src="/js/global-theme.js"></script>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hard-hat"></i>
+                <div>
+                    <h1>Site<span>Force</span></h1>
+                    <small>Worker Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-label">Navigation</div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" id="admindashBtn">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="fa-solid fa-users"></i> Workers Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="workerattendBtn">
+                        <i class="fa-regular fa-calendar-check"></i> Worker Attendance
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="aprojectsBtn">
+                        <i class="fa-solid fa-hard-hat"></i> Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="areportsBtn">
+                        <i class="fa-solid fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="wpayrollBtn">
+                        <i class="fa-solid fa-money-bill-wave"></i> Payroll
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logoutBtn" style="color: var(--red);">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <i class="fa-regular fa-circle"></i> v2.4.1
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-info">
+                    <h2>Worker Management</h2>
+                    <p id="currentDate"></p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search workers, projects..." />
+                </div>
+
+                <div class="top-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="setting" id="settingsBtnTop">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=Yogesh&background=7c3aed&color=fff" alt="Profile" />
+                        <div class="profile-text">
+                            <h4 id="userName">Yogesh</h4>
+                            <small>Admin</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- WORKER MANAGEMENT SECTION -->
+            <section class="worker-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Worker Directory</h2>
+                        <p>Manage your workforce records, categories and site assignments.</p>
+                    </div>
+                    <div class="header-buttons">
+                        <button class="btn-import" id="importBtn">
+                            <i class="fa-solid fa-file-import"></i> Import Excel
+                        </button>
+                        <button class="btn-export" id="exportBtn">
+                            <i class="fa-solid fa-file-export"></i> Export Excel
+                        </button>
+                        <button class="btn-add" id="addWorkerBtn">
+                            <i class="fa-solid fa-user-plus"></i> Add New Worker
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <div class="search-input">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="searchWorker" placeholder="Search by name, ID or phone..." />
+                    </div>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="Mason">Mason</option>
+                        <option value="Electrician">Electrician</option>
+                        <option value="Welder">Welder</option>
+                        <option value="Foreman">Foreman</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Site Engineer">Site Engineer</option>
+                        <option value="Plumber">Plumber</option>
+                        <option value="Painter">Painter</option>
+                        <option value="Driver">Driver</option>
+                    </select>
+                    <select id="projectFilter">
+                        <option value="">All Projects</option>
+                        <!-- Projects will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Worker ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Project</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workerTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span id="entriesInfo">Showing 1 to 8 of 0 entries</span>
+                    <div class="pagination-buttons">
+                        <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <div id="pageNumbers"></div>
+                        <button id="nextPage">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==================== ADD/EDIT WORKER MODAL ==================== -->
+    <div id="workerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Worker</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="workerForm">
+                <div class="form-group">
+                    <label>Full Name <span style="color: var(--red);">*</span></label>
+                    <input type="text" id="workerName" required placeholder="Enter full name" />
+                </div>
+                <div class="form-group">
+                    <label>Phone Number <span style="color: var(--red);">*</span></label>
+                    <input type="tel" id="workerPhone" required placeholder="+91 98765 43210" />
+                </div>
+                <div class="form-group">
+                    <label>Email (Optional)</label>
+                    <input type="email" id="workerEmail" placeholder="worker@email.com" />
+                </div>
+                <div class="form-group">
+                    <label>Project <span style="color: var(--red);">*</span></label>
+                    <select id="workerProject" required>
+                        <option value="">Select Project</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category <span style="color: var(--red);">*</span></label>
+                    <select id="workerCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Mason">Mason</option>
+                        <option value="Electrician">Electrician</option>
+                        <option value="Welder">Welder</option>
+                        <option value="Foreman">Foreman</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Site Engineer">Site Engineer</option>
+                        <option value="Plumber">Plumber</option>
+                        <option value="Painter">Painter</option>
+                        <option value="Driver">Driver</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status <span style="color: var(--red);">*</span></label>
+                    <select id="workerStatus" required>
+                        <option value="Active">Active</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fa-solid fa-plus"></i> Add Worker
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION DROPDOWN (Added by JS) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/js/workermang.js"></script>
+
+</body>
+</html>
