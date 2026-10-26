@@ -48,11 +48,12 @@ function formatTimeAgo(timestamp) {
 }
 
 // ============================================================
-// NOTIFICATIONS
+// NOTIFICATIONS (FIXED)
 // ============================================================
 async function loadNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications');
+        // ✅ Yahan ?role=Admin add kiya
+        const response = await fetch('/api/admins/notifications?role=Admin', { cache: 'no-store' });
         const notifications = await response.json();
         
         const list = document.getElementById('notificationList');
@@ -69,10 +70,19 @@ async function loadNotifications() {
                 else badge.classList.remove('has-notification');
             }
             
-            list.innerHTML = notifications.slice(0, 20).map(notif => `
+            list.innerHTML = notifications.slice(0, 20).map(notif => {
+                let iconClass = 'fa-bell';
+                let iconColor = 'updated';
+                
+                if (notif.type === 'created') { iconClass = 'fa-plus-circle'; iconColor = 'created'; }
+                else if (notif.type === 'updated') { iconClass = 'fa-pen'; iconColor = 'updated'; }
+                else if (notif.type === 'deleted') { iconClass = 'fa-trash'; iconColor = 'deleted'; }
+                else if (notif.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; }
+
+                return `
                 <div class="notification-item ${notif.read ? 'read' : 'unread'}" onclick="markNotificationRead('${notif._id}')">
-                    <div class="notif-icon ${notif.type || 'updated'}">
-                        <i class="${getNotificationIcon(notif.type)}"></i>
+                    <div class="notif-icon ${iconColor}">
+                        <i class="fa-solid ${iconClass}"></i>
                     </div>
                     <div class="notif-content">
                         <p>${notif.message}</p>
@@ -80,7 +90,8 @@ async function loadNotifications() {
                     </div>
                     ${!notif.read ? '<span class="notif-dot"></span>' : ''}
                 </div>
-            `).join('');
+                `;
+            }).join('');
         } else {
             list.innerHTML = `<div class="no-notifications"><i class="fa-regular fa-bell-slash"></i><p>No notifications</p></div>`;
             if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
@@ -91,24 +102,26 @@ async function loadNotifications() {
     }
 }
 
-function getNotificationIcon(type) {
-    const icons = { 'created': 'fa-plus-circle', 'updated': 'fa-pen', 'deleted': 'fa-trash', 'status_changed': 'fa-exchange-alt' };
-    return icons[type] || 'fa-bell';
-}
-
-function markNotificationRead() {
-    document.querySelectorAll('.notification-item').forEach(item => {
+async function markNotificationRead(notifId) {
+    const item = document.querySelector(`.notification-item[onclick*="${notifId}"]`);
+    if (item) {
         item.classList.remove('unread');
         item.classList.add('read');
         const dot = item.querySelector('.notif-dot');
         if (dot) dot.remove();
-    });
+    }
     const badge = document.getElementById('notificationBadge');
-    if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
-    setTimeout(() => document.getElementById('notificationDropdown')?.classList.remove('show'), 1000);
+    if (badge) {
+        const unreadItems = document.querySelectorAll('.notification-item.unread').length;
+        if (unreadItems > 0) badge.textContent = unreadItems;
+        else { badge.textContent = '0'; badge.style.display = 'none'; }
+    }
+    try {
+        await fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch (err) {}
 }
 
-function markAllRead() {
+async function markAllRead() {
     document.querySelectorAll('.notification-item.unread').forEach(item => {
         item.classList.remove('unread');
         item.classList.add('read');
@@ -117,7 +130,15 @@ function markAllRead() {
     });
     const badge = document.getElementById('notificationBadge');
     if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
-    showToast('✅ All notifications marked as read', 'success');
+    
+    try {
+        // ✅ Yahan ?role=Admin add kiya
+        await fetch('/api/admins/notifications/mark-all-read?role=Admin', { method: 'PUT' });
+        showToast('✅ All notifications marked as read', 'success');
+        setTimeout(() => loadNotifications(), 200);
+    } catch (err) {
+        showToast('❌ Failed to mark as read', 'error');
+    }
 }
 
 // ============================================================
@@ -235,7 +256,6 @@ async function giveSalary() {
             document.getElementById('giveSalaryModal').style.display = 'none';
             document.getElementById('giveSalaryForm').reset();
             
-            // Set filter to the month we just added
             document.getElementById('monthFilter').value = data.month;
             document.getElementById('yearFilter').value = data.year;
             
@@ -376,7 +396,7 @@ async function updateWorkerSalary() {
 }
 
 // ============================================================
-// LOAD WORKER PAYROLL DATA (THE ONLY FIX)
+// LOAD WORKER PAYROLL DATA
 // ============================================================
 async function loadWorkerPayroll() {
     try {
@@ -401,7 +421,6 @@ async function loadWorkerPayroll() {
         const response = await fetch(url);
         let fetchedData = await response.json();
 
-        // ✅ FIX: Filter the data strictly on the frontend so the calendar always works
         allPayrollData = fetchedData.filter(item => {
             const itemDate = item.salaryDate ? new Date(item.salaryDate) : null;
             const itemMonth = itemDate ? itemDate.toLocaleString('default', { month: 'long' }) : item.month;
@@ -708,7 +727,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateElement = document.getElementById('currentDate');
     if (dateElement) dateElement.textContent = new Date().toLocaleDateString('en-US', options) + ' · All sites';
 
-    // Navigation
     document.getElementById('admindashBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/admin-dashboard'; });
     document.getElementById('workersmangBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workersmang'; });
     document.getElementById('workerattendBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workerattend'; });
@@ -718,13 +736,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.profile')?.addEventListener('click', () => { if (confirm('Logout?')) { localStorage.removeItem('user'); window.location.href = '/'; } });
     document.getElementById('settingsBtnTop')?.addEventListener('click', () => window.location.href = '/settings');
 
-    // Notification Dropdown
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationDropdown = document.createElement('div');
     notificationDropdown.className = 'notification-dropdown';
     notificationDropdown.id = 'notificationDropdown';
     notificationDropdown.innerHTML = `
-        <div class="dropdown-header"><h4>Notifications</h4><button onclick="markAllRead()">Mark all read</button></div>
+        <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border);">
+            <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark);">Notifications</h4>
+            <div id="notifHeaderButtons" style="display: none; gap: 8px;">
+                <button onclick="markAllRead()" style="font-size: 12px; color: var(--blue); background: none; border: none; cursor: pointer; font-weight: 600;">Mark all read</button>
+                <button onclick="clearAllNotifications()" style="font-size: 12px; color: var(--red); background: none; border: none; cursor: pointer; font-weight: 600;">Clear All</button>
+            </div>
+        </div>
         <div id="notificationList"><div class="no-notifications">Loading notifications...</div></div>
     `;
     document.querySelector('.top-right').appendChild(notificationDropdown);
@@ -741,7 +764,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Modal Controls
     const modals = ['payslipModal', 'generateModal', 'editSalaryModal', 'giveSalaryModal', 'categorySalaryModal'];
     document.querySelectorAll('.close').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -753,7 +775,6 @@ document.addEventListener('DOMContentLoaded', function() {
         modals.forEach(id => { const m = document.getElementById(id); if (e.target === m) m.style.display = 'none'; });
     });
 
-    // Forms
     document.getElementById('generateForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
         generateWorkerPayroll(document.getElementById('payrollMonthSelect').value, document.getElementById('payrollYear').value);
@@ -764,7 +785,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCategorySalary(document.getElementById('categorySalaryName').value, parseInt(document.getElementById('categoryDailyWage').value));
     });
 
-    // Real-time Calculations
     ['salaryPresentDays', 'salaryDailyWage', 'salaryOvertime', 'salaryAdvance'].forEach(id => {
         document.getElementById(id)?.addEventListener('input', calculateGiveSalary);
     });
@@ -772,11 +792,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById(id)?.addEventListener('input', calculateEditSalary);
     });
 
-    // Submit Forms
     document.getElementById('giveSalaryForm')?.addEventListener('submit', function(e) { e.preventDefault(); giveSalary(); });
     document.getElementById('editSalaryForm')?.addEventListener('submit', function(e) { e.preventDefault(); updateWorkerSalary(); });
 
-    // Filters & Search
     ['searchPayroll', 'statusFilter', 'categoryFilter', 'projectFilter', 'monthFilter', 'yearFilter'].forEach(id => {
         document.getElementById(id)?.addEventListener('input', () => { currentPage = 1; loadWorkerPayroll(); });
         document.getElementById(id)?.addEventListener('change', () => { currentPage = 1; loadWorkerPayroll(); });
@@ -787,12 +805,10 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPage = 1; loadWorkerPayroll();
     });
 
-    // Pagination & Refresh
     document.getElementById('prevPage')?.addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadWorkerPayroll(); } });
     document.getElementById('nextPage')?.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; loadWorkerPayroll(); } });
     document.getElementById('refreshBtn')?.addEventListener('click', refreshData);
 
-    // Initial Load
     loadWorkersForDropdown();
     loadSalarySettings();
     loadWorkerPayroll();

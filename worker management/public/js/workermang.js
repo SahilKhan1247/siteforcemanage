@@ -88,9 +88,12 @@ document.addEventListener('DOMContentLoaded', function () {
     notificationDropdown.className = 'notification-dropdown';
     notificationDropdown.id = 'notificationDropdown';
     notificationDropdown.innerHTML = `
-        <div class="dropdown-header">
-            <h4>Notifications</h4>
-            <button onclick="markAllRead()">Mark all read</button>
+        <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border);">
+            <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark);">Notifications</h4>
+            <div id="notifHeaderButtons" style="display: none; gap: 8px;">
+                <button onclick="markAllRead()" style="font-size: 12px; color: var(--blue); background: none; border: none; cursor: pointer; font-weight: 600;">Mark all read</button>
+                <button onclick="clearAllNotifications()" style="font-size: 12px; color: var(--red); background: none; border: none; cursor: pointer; font-weight: 600;">Clear All</button>
+            </div>
         </div>
         <div id="notificationList">
             <div class="no-notifications">Loading notifications...</div>
@@ -630,19 +633,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ============================================================
-    // NOTIFICATIONS
+    // NOTIFICATIONS (FIXED - USING ADMIN API)
     // ============================================================
     async function loadNotifications() {
         try {
-            const response = await fetch('/api/workers/notifications');
+            // ✅ Ab yahan Admin ki notifications fetch ho rahi hain (Announcements ke liye)
+            const response = await fetch('/api/admins/notifications?role=Admin', { cache: 'no-store' });
             const notifications = await response.json();
 
             const list = document.getElementById('notificationList');
             if (!list) return;
 
-            const badge = document.getElementById('notificationBadge');
+            const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+            const headerButtons = document.getElementById('notifHeaderButtons');
 
             if (notifications && notifications.length > 0) {
+                if (headerButtons) headerButtons.style.display = 'flex';
+
                 const unread = notifications.filter(n => !n.read).length;
                 if (badge) {
                     if (unread > 0) {
@@ -655,10 +662,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
-                list.innerHTML = notifications.slice(0, 20).map(n => `
+                list.innerHTML = notifications.slice(0, 20).map(n => {
+                    let iconClass = 'fa-bell';
+                    let iconColor = 'updated';
+                    
+                    if (n.type === 'created') { iconClass = 'fa-plus-circle'; iconColor = 'created'; }
+                    else if (n.type === 'updated') { iconClass = 'fa-pen'; iconColor = 'updated'; }
+                    else if (n.type === 'deleted') { iconClass = 'fa-trash'; iconColor = 'deleted'; }
+                    else if (n.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; }
+
+                    return `
                     <div class="notification-item ${n.read ? 'read' : 'unread'}" onclick="markNotificationRead('${n._id}')">
-                        <div class="notif-icon ${n.type || 'updated'}">
-                            <i class="${getNotificationIcon(n.type)}"></i>
+                        <div class="notif-icon ${iconColor}">
+                            <i class="fa-solid ${iconClass}"></i>
                         </div>
                         <div class="notif-content">
                             <p>${n.message}</p>
@@ -666,8 +682,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                         ${!n.read ? '<span class="notif-dot"></span>' : ''}
                     </div>
-                `).join('');
+                `}).join('');
             } else {
+                if (headerButtons) headerButtons.style.display = 'none';
                 list.innerHTML = `
                     <div class="no-notifications">
                         <i class="fa-regular fa-bell-slash"></i>
@@ -692,16 +709,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function getNotificationIcon(type) {
-        const icons = {
-            'created': 'fa-plus-circle',
-            'updated': 'fa-pen',
-            'deleted': 'fa-trash',
-            'status_changed': 'fa-exchange-alt'
-        };
-        return icons[type] || 'fa-bell';
-    }
-
     function formatTimeAgo(timestamp) {
         if (!timestamp) return 'Just now';
         const diff = new Date() - new Date(timestamp);
@@ -712,36 +719,79 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Date(timestamp).toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
     }
 
-    function markNotificationRead() {
-        document.querySelectorAll('.notification-item').forEach(item => {
+    async function markNotificationRead(notifId) {
+        const item = document.querySelector(`.notification-item[onclick*="${notifId}"]`);
+        if (item) {
             item.classList.remove('unread');
             item.classList.add('read');
             const dot = item.querySelector('.notif-dot');
             if (dot) dot.remove();
-        });
-        const badge = document.getElementById('notificationBadge');
-        if (badge) {
-            badge.textContent = '0';
-            badge.style.display = 'none';
         }
-        setTimeout(() => {
-            document.getElementById('notificationDropdown')?.classList.remove('show');
-        }, 1000);
+
+        const unreadItems = document.querySelectorAll('.notification-item.unread').length;
+        const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+        if (badge) {
+            if (unreadItems > 0) {
+                badge.textContent = unreadItems;
+                badge.style.display = 'flex';
+            } else {
+                badge.textContent = '0';
+                badge.style.display = 'none';
+            }
+        }
+
+        try {
+            await fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+        } catch (err) {
+            console.error('Failed to mark read:', err);
+        }
     }
 
-    function markAllRead() {
+    async function markAllRead() {
         document.querySelectorAll('.notification-item.unread').forEach(item => {
             item.classList.remove('unread');
             item.classList.add('read');
             const dot = item.querySelector('.notif-dot');
             if (dot) dot.remove();
         });
-        const badge = document.getElementById('notificationBadge');
+        const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
         if (badge) {
             badge.textContent = '0';
             badge.style.display = 'none';
         }
-        showToast('✅ All notifications marked as read', 'success');
+
+        try {
+            // ✅ Mark all read for Admin
+            await fetch('/api/admins/notifications/mark-all-read?role=Admin', { method: 'PUT' });
+            showToast('✅ All notifications marked as read', 'success');
+            setTimeout(() => loadNotifications(), 200);
+        } catch (err) {
+            showToast('❌ Failed to mark as read', 'error');
+        }
+    }
+
+    async function clearAllNotifications() {
+        try {
+            // ✅ Clear for Admin
+            const response = await fetch('/api/admins/notifications/clear?role=Admin', { method: 'DELETE' });
+            if (response.ok) {
+                const list = document.getElementById('notificationList');
+                if (list) {
+                    list.innerHTML = `<div class="no-notifications"><i class="fa-regular fa-bell-slash"></i><p>No notifications</p></div>`;
+                }
+                const headerButtons = document.getElementById('notifHeaderButtons');
+                if (headerButtons) headerButtons.style.display = 'none';
+
+                const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+                if (badge) {
+                    badge.textContent = '0';
+                    badge.style.display = 'none';
+                }
+                showToast('✅ All notifications cleared!', 'success');
+            }
+        } catch (error) {
+            showToast('❌ Error clearing notifications', 'error');
+        }
     }
 
     // ============================================================
@@ -755,6 +805,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.loadProjectsForFilters = loadProjectsForFilters;
     window.markAllRead = markAllRead;
     window.markNotificationRead = markNotificationRead;
+    window.clearAllNotifications = clearAllNotifications;
     window.showToast = showToast;
 
     // ============================================================
@@ -764,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadWorkers(1);
     loadNotifications();
 
-    setInterval(loadNotifications, 30000); 
+    setInterval(loadNotifications, 10000); // ✅ 10 sec refresh (admin-dashboard jaisa)
 
     console.log('✅ SiteForce Worker Management ready!');
 });

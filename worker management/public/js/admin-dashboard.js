@@ -224,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // LOAD ALL DATA
     // ============================================================
     loadDashboardData();
+    loadNotifications(); // ✅ Initial load par hi notifications call karo
 
     // Auto-refresh every 60 seconds
     setInterval(() => {
@@ -551,11 +552,12 @@ function searchDashboard(searchTerm) {
 }
 
 // ============================================================
-// ✅ NOTIFICATION FUNCTIONS
+// ✅ NOTIFICATION FUNCTIONS (ADMIN ROLE)
 // ============================================================
 async function loadNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications');
+        // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
+        const response = await fetch('/api/admins/notifications?role=Admin', { cache: 'no-store' });
         const notifications = await response.json();
         
         const list = document.getElementById('notificationList');
@@ -649,6 +651,10 @@ function markNotificationRead(notifId) {
             badge.style.display = 'none';
         }
     }
+
+    try {
+        fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch(e) {}
 }
 
 function markAllRead() {
@@ -666,14 +672,16 @@ function markAllRead() {
         badge.style.display = 'none';
     }
     
-    fetch('/api/admins/notifications/mark-all-read', { method: 'PUT' }).catch(console.error);
+    // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
+    fetch('/api/admins/notifications/mark-all-read?role=Admin', { method: 'PUT' }).catch(console.error);
     
     showCustomToast('✅ All notifications marked as read', 'success');
 }
 
 async function clearAllNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications/clear', {
+        // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
+        const response = await fetch('/api/admins/notifications/clear?role=Admin', {
             method: 'DELETE'
         });
 

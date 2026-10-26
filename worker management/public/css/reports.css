@@ -478,9 +478,6 @@ button {
 }
 
 /* PROJECT ATTENDANCE */
-/* ============================================================
-   PROJECT WISE ATTENDANCE - ATTRACTIVE DESIGN
-   ============================================================ */
 .project-attendance {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -535,14 +532,12 @@ button {
     color: var(--text-dark);
 }
 
-/* Project Grid - New Layout */
 .project-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
 }
 
-/* Project Card - Attractive Design */
 .project-card-item {
     background: var(--bg);
     border-radius: var(--radius-md);
@@ -679,7 +674,6 @@ button {
     color: var(--text-muted);
 }
 
-/* Progress Bar for Attendance Rate */
 .project-card-item .attendance-progress {
     margin-top: 4px;
 }
@@ -740,7 +734,6 @@ button {
     background: linear-gradient(90deg, var(--red), #f87171);
 }
 
-/* Colorful border left based on rate */
 .project-card-item.border-high::before {
     background: var(--green);
 }
@@ -753,7 +746,6 @@ button {
     background: var(--red);
 }
 
-/* Empty State */
 .project-empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -774,7 +766,6 @@ button {
     margin-bottom: 4px;
 }
 
-/* Loading State */
 .project-loading {
     grid-column: 1 / -1;
     text-align: center;
@@ -795,27 +786,6 @@ button {
     to { transform: rotate(360deg); }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .project-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .project-card-item .project-top {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .project-card-item .project-stats {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .project-attendance .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
 /* RECENT REPORTS */
 .recent-reports {
     background: var(--surface);
@@ -1067,9 +1037,7 @@ button {
     }
 }
 
-/* ============================================================
-   NOTIFICATION DROPDOWN
-   ============================================================ */
+/* NOTIFICATION DROPDOWN */
 .notification-dropdown {
     display: none;
     position: absolute;
@@ -1246,9 +1214,7 @@ button {
     }
 }
 
-/* ============================================================
-   TOAST
-   ============================================================ */
+/* TOAST */
 .toast {
     position: fixed;
     bottom: 30px;
@@ -1286,9 +1252,7 @@ button {
     background: var(--green);
 }
 
-/* ============================================================
-   REFRESH BUTTON
-   ============================================================ */
+/* REFRESH BUTTON */
 .btn-refresh {
     background: rgba(255, 255, 255, 0.15);
     color: white;
@@ -1335,9 +1299,7 @@ button {
     cursor: not-allowed;
 }
 
-/* ============================================================
-   NEW STAT CARDS COLORS
-   ============================================================ */
+/* NEW STAT CARDS COLORS */
 .stat-icon.red {
     background: var(--red-light);
     color: var(--red);
@@ -1351,4 +1313,106 @@ button {
 .stat-icon.cyan {
     background: var(--cyan-light);
     color: var(--cyan);
-}   
+}
+
+/* ============================================================
+   ✅ FIX: Recent Reports & Announcements section headers
+   ============================================================ */
+.recent-reports .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.recent-reports .section-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.3;
+}
+
+.recent-reports .section-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ============================================================
+   ✅ Clean & simple announcement list
+   ============================================================ */
+.announcements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.announcement-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.announcement-item:hover {
+    background: var(--blue-light);
+    border-color: var(--blue);
+}
+
+.announcement-item > i {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--orange-light);
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+.announcement-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.announcement-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 2px;
+    line-height: 1.4;
+}
+
+.announcement-body p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin: 0 0 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.announcement-body small {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.announcement-body small i {
+    font-size: 10px;
+}

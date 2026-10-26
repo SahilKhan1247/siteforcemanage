@@ -27,7 +27,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================
-// ✅ NEW WORKING TOAST FUNCTION (Like Owner Dashboard)
+// ✅ CUSTOM TOAST (Like Owner Dashboard)
 // ============================================================
 function showCustomToast(message, type = 'success') {
     const existing = document.getElementById('myCustomToast');
@@ -56,13 +56,11 @@ function showCustomToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Animation In
     setTimeout(() => {
         toast.style.transform = 'translateY(0)';
         toast.style.opacity = '1';
     }, 50);
 
-    // Animation Out
     setTimeout(() => {
         toast.style.transform = 'translateY(100px)';
         toast.style.opacity = '0';
@@ -145,6 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dropdown && !dropdown.contains(e.target) && e.target !== notificationBtn) {
             dropdown.classList.remove('show');
         }
+    });
+
+    // ✅ Fresh fetch on tab focus
+    window.addEventListener('focus', () => loadNotifications());
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) loadNotifications();
     });
 
     // ============================================================
@@ -238,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('adminForm').onsubmit = handleAddAdmin;
 
     // ============================================================
-    // ✅ IMPORT EXCEL (FULLY WORKING)
+    // ✅ IMPORT EXCEL
     // ============================================================
     document.getElementById('importBtn')?.addEventListener('click', function() {
         const fileInput = document.createElement('input');
@@ -313,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAdmins(1);
     loadNotifications();
 
-    setInterval(loadNotifications, 10000); // 10 sec auto-refresh
+    setInterval(loadNotifications, 10000);
     setInterval(() => loadAdmins(currentPage), 60000);
 });
 
@@ -322,7 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 async function loadNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications');
+        // ✅ cache: 'no-store' — purani cache se unread dikhna band
+        const response = await fetch('/api/admins/notifications', { cache: 'no-store' });
         const notifications = await response.json();
         
         const list = document.getElementById('notificationList');
@@ -343,6 +348,7 @@ async function loadNotifications() {
                 } else {
                     badge.textContent = '0';
                     badge.style.display = 'none';
+                    badge.classList.remove('has-notification');
                 }
             }
             
@@ -379,6 +385,7 @@ async function loadNotifications() {
             if (badge) {
                 badge.textContent = '0';
                 badge.style.display = 'none';
+                badge.classList.remove('has-notification');
             }
         }
     } catch (error) {
@@ -400,7 +407,7 @@ function formatTime(timestamp) {
 }
 
 // Mark single notification as read
-function markNotificationRead(notifId) {
+async function markNotificationRead(notifId) {
     const item = document.querySelector(`.notification-item[onclick*="${notifId}"]`);
     if (item) {
         item.classList.remove('unread');
@@ -409,7 +416,6 @@ function markNotificationRead(notifId) {
         if (dot) dot.remove();
     }
     
-    // Update badge count
     const unreadItems = document.querySelectorAll('.notification-item.unread').length;
     const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
     if (badge) {
@@ -420,10 +426,19 @@ function markNotificationRead(notifId) {
             badge.style.display = 'none';
         }
     }
+
+    try {
+        await fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch (err) {
+        console.error('markNotificationRead backend failed:', err);
+    }
 }
 
-// Mark all notifications as read
-function markAllRead() {
+// ============================================================
+// ✅ MARK ALL AS READ — await + fresh load (Clear All jaisa permanent)
+// ============================================================
+async function markAllRead() {
+    // 1. UI turant
     const unreadItems = document.querySelectorAll('.notification-item.unread');
     unreadItems.forEach(item => {
         item.classList.remove('unread');
@@ -436,12 +451,20 @@ function markAllRead() {
     if (badge) {
         badge.textContent = '0';
         badge.style.display = 'none';
+        badge.classList.remove('has-notification');
     }
     
-    fetch('/api/admins/notifications/mark-all-read', { method: 'PUT' }).catch(console.error);
-    
-    // ✅ Custom Toast
-    showCustomToast('✅ All notifications marked as read', 'success');
+    // 2. Backend save + 3. fresh reload
+    try {
+        const res = await fetch('/api/admins/notifications/mark-all-read', { method: 'PUT' });
+        if (!res.ok) throw new Error('Backend failed');
+        showCustomToast('✅ All notifications marked as read', 'success');
+        await loadNotifications();
+    } catch (err) {
+        console.error('markAllRead failed:', err);
+        showCustomToast('❌ Failed to mark as read', 'error');
+        await loadNotifications();
+    }
 }
 
 // Clear all notifications
@@ -469,9 +492,9 @@ async function clearAllNotifications() {
             if (badge) {
                 badge.textContent = '0';
                 badge.style.display = 'none';
+                badge.classList.remove('has-notification');
             }
             
-            // ✅ Custom Toast (No Alert)
             showCustomToast('✅ All notifications cleared!', 'success');
         }
     } catch (error) {
@@ -481,7 +504,7 @@ async function clearAllNotifications() {
 }
 
 // ============================================================
-// LOADERS & HELPERS (SAME AS BEFORE)
+// LOADERS & HELPERS
 // ============================================================
 async function loadProjectsForFilters() {
     try {

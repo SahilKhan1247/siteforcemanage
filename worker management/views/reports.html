@@ -245,7 +245,7 @@
             </section>
 
             <!-- RECENT REPORTS - REAL TIME -->
-            <section class="recent-reports">
+            <section class="recent-reports" style="margin-bottom: 24px;">
                 <div class="section-header">
                     <h2>Recent Reports</h2>
                     <p>Recently generated documents ready to download</p>
@@ -258,6 +258,23 @@
                                 <h4>No reports generated yet</h4>
                                 <p>Click "Generate New Report" to create one</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ✅ NEW: RECENT ANNOUNCEMENTS -->
+            <section class="recent-reports">
+                <div class="section-header">
+                    <h2>Recent Announcements</h2>
+                    <p>Announcements you have sent to all admins</p>
+                </div>
+                <div class="announcements-list" id="announcementsList">
+                    <div class="announcement-item">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <div class="announcement-body">
+                            <h4>No announcements yet</h4>
+                            <p>Click "Announcements" button to send one</p>
                         </div>
                     </div>
                 </div>
@@ -304,7 +321,7 @@
         </div>
     </div>
 
-        <!-- ANNOUNCEMENT MODAL -->
+    <!-- ANNOUNCEMENT MODAL -->
     <div id="announcementModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -326,11 +343,12 @@
             </form>
         </div>
     </div>
+
     <!-- NOTIFICATION DROPDOWN (Added by JS) -->
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="/js/reports.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/js/reports.js"></script>
 
 </body>
 </html>

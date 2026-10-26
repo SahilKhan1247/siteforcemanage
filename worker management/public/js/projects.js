@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================================
-    // ✅ NOTIFICATION CODE - EXACT SAME AS OWNER DASHBOARD
+    // ✅ NOTIFICATION CODE - DYNAMIC ROLE SUPPORT
     // ============================================================
     const notificationBtn = document.querySelector('.notification');
     
@@ -173,8 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load notifications
     loadNotifications();
 
-    // Auto-refresh notifications every 30 seconds
-    setInterval(loadNotifications, 30000);
+    // ✅ Auto-refresh notifications every 10 seconds
+    setInterval(loadNotifications, 10000);
 });
 
 // Setup Modal
@@ -215,7 +215,6 @@ function setupModal() {
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userName = user.name;
-        // ✅ FIXED: Read actual user role from localStorage
         const userRole = (user.role === 'owner') ? 'Owner' : 'Admin';
         
         const projectData = {
@@ -243,17 +242,17 @@ function setupModal() {
         .then(response => response.json())
         .then(data => {
             if (data._id) {
-                showToast('✅ Project added successfully!');
+                showCustomToast('✅ Project added successfully!');
                 document.getElementById('projectModal').style.display = 'none';
                 document.getElementById('projectForm').reset();
                 loadProjects();
             } else {
-                showToast('❌ ' + (data.error || 'Failed to add project'), 'error');
+                showCustomToast('❌ ' + (data.error || 'Failed to add project'), 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('❌ Error adding project: ' + error.message, 'error');
+            showCustomToast('❌ Error adding project: ' + error.message, 'error');
         })
         .finally(() => {
             submitBtn.innerHTML = originalText;
@@ -422,7 +421,7 @@ async function viewProject(id) {
             `Status: ${project.status}`
         );
     } catch (error) {
-        showToast('❌ Error loading project details', 'error');
+        showCustomToast('❌ Error loading project details', 'error');
     }
 }
 
@@ -453,7 +452,6 @@ async function editProject(id) {
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userName = user.name;
-        // ✅ FIXED: Read actual user role from localStorage
         const userRole = (user.role === 'owner') ? 'Owner' : 'Admin';
         
         form.onsubmit = async function(e) {
@@ -489,17 +487,17 @@ async function editProject(id) {
                 });
 
                 if (response.ok) {
-                    showToast('✅ Project updated successfully!');
+                    showCustomToast('✅ Project updated successfully!');
                     document.getElementById('projectModal').style.display = 'none';
                     form.reset();
                     submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Project';
                     loadProjects();
                 } else {
                     const error = await response.json();
-                    showToast('❌ ' + (error.error || 'Failed to update project'), 'error');
+                    showCustomToast('❌ ' + (error.error || 'Failed to update project'), 'error');
                 }
             } catch (error) {
-                showToast('❌ Error updating project: ' + error.message, 'error');
+                showCustomToast('❌ Error updating project: ' + error.message, 'error');
             } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
@@ -507,7 +505,7 @@ async function editProject(id) {
         };
         
     } catch (error) {
-        showToast('❌ Error loading project for editing', 'error');
+        showCustomToast('❌ Error loading project for editing', 'error');
     }
 }
 
@@ -518,7 +516,6 @@ async function deleteProject(id) {
     try {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userName = user.name;
-        // ✅ FIXED: Read actual user role from localStorage
         const userRole = (user.role === 'owner') ? 'Owner' : 'Admin';
         
         const response = await fetch(`/api/projects/${id}?user=${userName}&role=${userRole}`, {
@@ -527,47 +524,15 @@ async function deleteProject(id) {
 
         if (response.ok) {
             const data = await response.json();
-            showToast(`✅ ${data.message}`);
+            showCustomToast(`✅ ${data.message}`);
             loadProjects();
         } else {
             const error = await response.json();
-            showToast('❌ ' + (error.error || 'Failed to delete project'), 'error');
+            showCustomToast('❌ ' + (error.error || 'Failed to delete project'), 'error');
         }
     } catch (error) {
-        showToast('❌ Error deleting project: ' + error.message, 'error');
+        showCustomToast('❌ Error deleting project: ' + error.message, 'error');
     }
-}
-
-// ============================================================
-// ✅ TOAST NOTIFICATION - FIXED WITH SHOW CLASS
-// ============================================================
-function showToast(message, type = 'success') {
-    // Remove existing toast
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
-    
-    // Create toast
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    // Show with animation (add show class after tiny delay)
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 50);
-    
-    // Auto hide after 3 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, 400);
-    }, 3000);
 }
 
 // ============================================================
@@ -615,13 +580,18 @@ function showCustomToast(message, type = 'success') {
 }
 
 // ============================================================
-// ✅ NOTIFICATION FUNCTIONS - EXACT SAME AS ADMINMANG
+// ✅ NOTIFICATION FUNCTIONS (DYNAMIC ROLE SUPPORT)
 // ============================================================
 
 // Load notifications
 async function loadNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications');
+        // ✅ DYNAMIC ROLE: Check current logged in user
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = (user.role === 'owner') ? 'Owner' : 'Admin';
+
+        // ✅ Fetch based on role
+        const response = await fetch(`/api/admins/notifications?role=${role}`, { cache: 'no-store' });
         const notifications = await response.json();
         
         const list = document.getElementById('notificationList');
@@ -652,6 +622,7 @@ async function loadNotifications() {
                 if (notif.type === 'created') { iconClass = 'fa-plus-circle'; iconColor = 'created'; }
                 else if (notif.type === 'updated') { iconClass = 'fa-pen'; iconColor = 'updated'; }
                 else if (notif.type === 'deleted') { iconClass = 'fa-trash'; iconColor = 'deleted'; }
+                else if (notif.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; }
 
                 return `
                 <div class="notification-item ${notif.read ? 'read' : 'unread'}" onclick="markNotificationRead('${notif._id}')">
@@ -695,16 +666,6 @@ async function loadNotifications() {
     }
 }
 
-function getNotificationIcon(type) {
-    const icons = {
-        'created': 'fa-plus-circle',
-        'updated': 'fa-pen',
-        'deleted': 'fa-trash',
-        'status_changed': 'fa-exchange-alt'
-    };
-    return icons[type] || 'fa-bell';
-}
-
 function formatTime(timestamp) {
     const date = new Date(timestamp);
     const now = new Date();
@@ -717,7 +678,7 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 }
 
-function markNotificationRead(notifId) {
+async function markNotificationRead(notifId) {
     const item = document.querySelector(`.notification-item[onclick*="${notifId}"]`);
     if (item) {
         item.classList.remove('unread');
@@ -737,9 +698,15 @@ function markNotificationRead(notifId) {
             badge.style.display = 'none';
         }
     }
+
+    try {
+        await fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch (err) {
+        console.error('markNotificationRead failed:', err);
+    }
 }
 
-function markAllRead() {
+async function markAllRead() {
     const unreadItems = document.querySelectorAll('.notification-item.unread');
     unreadItems.forEach(item => {
         item.classList.remove('unread');
@@ -754,15 +721,28 @@ function markAllRead() {
         badge.style.display = 'none';
     }
     
-    fetch('/api/admins/notifications/mark-all-read', { method: 'PUT' }).catch(console.error);
-    
-    // ✅ Custom Toast
-    showCustomToast('✅ All notifications marked as read', 'success');
+    try {
+        // ✅ DYNAMIC ROLE
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = (user.role === 'owner') ? 'Owner' : 'Admin';
+
+        const res = await fetch(`/api/admins/notifications/mark-all-read?role=${role}`, { method: 'PUT' });
+        if (!res.ok) throw new Error('Backend failed');
+        showCustomToast('✅ All notifications marked as read', 'success');
+        setTimeout(() => loadNotifications(), 200);
+    } catch (err) {
+        console.error('markAllRead failed:', err);
+        showCustomToast('❌ Failed to mark as read', 'error');
+    }
 }
 
 async function clearAllNotifications() {
     try {
-        const response = await fetch('/api/admins/notifications/clear', {
+        // ✅ DYNAMIC ROLE
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = (user.role === 'owner') ? 'Owner' : 'Admin';
+
+        const response = await fetch(`/api/admins/notifications/clear?role=${role}`, {
             method: 'DELETE'
         });
 
@@ -786,7 +766,6 @@ async function clearAllNotifications() {
                 badge.style.display = 'none';
             }
             
-            // ✅ Custom Toast (No Alert)
             showCustomToast('✅ All notifications cleared!', 'success');
         }
     } catch (error) {
@@ -795,7 +774,9 @@ async function clearAllNotifications() {
     }
 }
 
-// Navigation - Admin
+// ============================================================
+// NAVIGATION - ADMIN SPECIFIC
+// ============================================================
 document.getElementById('workersmangBtn')?.addEventListener('click', function(e) {
     e.preventDefault();
     window.location.href = '/workersmang';
@@ -854,6 +835,7 @@ notifStyle.textContent = `
     .notification-item .notif-icon.created { background: var(--green-light); color: var(--green); }
     .notification-item .notif-icon.updated { background: var(--blue-light); color: var(--blue); }
     .notification-item .notif-icon.deleted { background: var(--red-light); color: var(--red); }
+    .notification-item .notif-icon.status_changed { background: var(--orange-light); color: var(--orange); }
     .notification-item .notif-content { flex: 1; min-width: 0; }
     .notification-item .notif-content p { font-size: 13px; color: var(--text-dark); line-height: 1.4; margin: 0; font-weight: 500; }
     .notification-item .notif-content small { font-size: 11px; color: var(--text-muted); }

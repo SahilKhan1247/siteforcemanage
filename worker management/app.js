@@ -20,9 +20,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/siteforce
     console.error('❌ MongoDB connection error:', err);
 });
 
-// ============================================================
-// ✅ IMPORT ROUTES - CHECK KARO SAB FILES EXIST KARTI HAI
-// ============================================================
+// Routes
 const workerRoutes = require('./routes/workerRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminAttendanceRoutes = require('./routes/adminAttendanceRoutes');
@@ -32,15 +30,7 @@ const adminPayrollRoutes = require('./routes/adminPayrollRoutes');
 const workerPayrollRoutes = require('./routes/workerPayrollRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const workerAttendanceRoutes = require('./routes/workerAttendanceRoutes');
-
-
-// ✅ AGAR dashboardRoutes NAHI HAI TOH COMMENT KARO
-// const dashboardRoutes = require('./routes/dashboardRoutes');
-
-// ============================================================
-// ✅ USE ROUTES
-// ============================================================
-// app.use('/api/dashboard', dashboardRoutes);  // COMMENT KARO
+const announcementRoutes = require('./routes/announcementRoutes');
 
 app.use('/api/workers', workerRoutes);
 app.use('/api/admins', adminRoutes);
@@ -51,81 +41,27 @@ app.use('/api/admin-payroll', adminPayrollRoutes);
 app.use('/api/worker-payroll', workerPayrollRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/worker-attendance', workerAttendanceRoutes);
+app.use('/api/announcements', announcementRoutes);
 
-// ============================================================
-// ✅ VIEW ROUTES
-// ============================================================
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "login.html"));
-});
-
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "login.html"));
-});
-
-app.get("/owner-dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "owner-dashboard.html"));
-});
-
-app.get("/admin-dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "admin-dashboard.html"));
-});
-
-app.get("/adminsmang", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "adminsmang.html"));
-});
-
-app.get("/adminattend", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "adminattend.html"));
-});
-
-app.get("/administratend", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "adminattend.html"));
-});
-
-app.get("/workersmang", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "workermang.html"));
-});
-
-app.get("/workermang", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "workermang.html"));
-});
-
-app.get("/workerattend", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "workerattend.html"));
-});
-
-app.get("/projects", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "projects.html"));
-});
-
-app.get("/aprojects", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "aprojects.html"));
-});
-
-app.get("/reports", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "reports.html"));
-});
-
-app.get("/areports", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "areports.html"));
-});
-
-app.get("/apayroll", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "apayroll.html"));
-});
-
-app.get("/wpayroll", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "wpayroll.html"));
-});
-
-app.get("/settings", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "settings.html"));
-});
-
-app.get("/kaam", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "kaam.html"));
-});
+// View Routes
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "views", "login.html")));
+app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views", "login.html")));
+app.get("/owner-dashboard", (req, res) => res.sendFile(path.join(__dirname, "views", "owner-dashboard.html")));
+app.get("/admin-dashboard", (req, res) => res.sendFile(path.join(__dirname, "views", "admin-dashboard.html")));
+app.get("/adminsmang", (req, res) => res.sendFile(path.join(__dirname, "views", "adminsmang.html")));
+app.get("/adminattend", (req, res) => res.sendFile(path.join(__dirname, "views", "adminattend.html")));
+app.get("/administratend", (req, res) => res.sendFile(path.join(__dirname, "views", "adminattend.html")));
+app.get("/workersmang", (req, res) => res.sendFile(path.join(__dirname, "views", "workermang.html")));
+app.get("/workermang", (req, res) => res.sendFile(path.join(__dirname, "views", "workermang.html")));
+app.get("/workerattend", (req, res) => res.sendFile(path.join(__dirname, "views", "workerattend.html")));
+app.get("/projects", (req, res) => res.sendFile(path.join(__dirname, "views", "projects.html")));
+app.get("/aprojects", (req, res) => res.sendFile(path.join(__dirname, "views", "aprojects.html")));
+app.get("/reports", (req, res) => res.sendFile(path.join(__dirname, "views", "reports.html")));
+app.get("/areports", (req, res) => res.sendFile(path.join(__dirname, "views", "areports.html")));
+app.get("/apayroll", (req, res) => res.sendFile(path.join(__dirname, "views", "apayroll.html")));
+app.get("/wpayroll", (req, res) => res.sendFile(path.join(__dirname, "views", "wpayroll.html")));
+app.get("/settings", (req, res) => res.sendFile(path.join(__dirname, "views", "settings.html")));
+app.get("/kaam", (req, res) => res.sendFile(path.join(__dirname, "views", "kaam.html")));
 
 // 404 handler
 app.use((req, res) => {

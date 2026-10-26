@@ -108,22 +108,19 @@ async function loadAllData() {
 }
 
 // ============================================================
-// STATS CARDS (8) - REAL TIME (FULLY FIXED)
+// STATS CARDS (8)
 // ============================================================
 function updateStats() {
     const today = getTodayISO();
     const totalWorkers = allWorkersData.length;
     const totalAdmins = allAdminsData.length;
 
-    // =============== TODAY'S ATTENDANCE ===============
     const todayAtt = allAttendanceData.filter(a => a.date === today);
     const presentToday = todayAtt.filter(a => a.status === 'Present').length;
     const absentToday = todayAtt.filter(a => a.status === 'Absent').length;
     const lateToday = todayAtt.filter(a => a.status === 'Late').length;
     const totalToday = todayAtt.length || 1;
 
-    // =============== WEEKLY & MONTHLY (BULLETPROOF) ===============
-    // Find the absolute latest date in the attendance DB to use as reference
     let refDateStr = getTodayISO();
     if (allAttendanceData.length > 0) {
         const dates = allAttendanceData.map(a => a.date).filter(Boolean).sort();
@@ -131,7 +128,6 @@ function updateStats() {
     }
     const refDate = new Date(refDateStr + 'T00:00:00');
 
-    // Helper to calculate rate accurately
     const calculateRate = (daysToLookBack) => {
         const startDate = new Date(refDate);
         startDate.setDate(startDate.getDate() - daysToLookBack);
@@ -149,10 +145,7 @@ function updateStats() {
         uniqueDates.forEach(date => {
             const dayData = periodData.filter(a => a.date === date);
             const present = dayData.filter(a => a.status === 'Present').length;
-            
-            // Use total registered workers if available, else use daily records
             const totalOnDay = totalWorkers > 0 ? totalWorkers : dayData.length;
-
             totalPresent += present;
             totalPossible += totalOnDay;
         });
@@ -164,7 +157,6 @@ function updateStats() {
     const weeklyRate = calculateRate(7);
     const monthlyRate = calculateRate(30);
 
-    // =============== TOTAL PAYROLL ===============
     const cm = new Date().getMonth();
     const cy = new Date().getFullYear();
     const monthPayroll = allPayrollData.filter(p => {
@@ -173,7 +165,6 @@ function updateStats() {
     });
     const totalPayroll = monthPayroll.reduce((sum, p) => sum + (p.netSalary || 0), 0);
 
-    // =============== UPDATE DOM ===============
     document.getElementById('totalWorkers').textContent = totalWorkers;
     document.getElementById('presentToday').textContent = presentToday;
     document.getElementById('absentToday').textContent = absentToday;
@@ -191,7 +182,7 @@ function updateStats() {
 }
 
 // ============================================================
-// ATTENDANCE TREND CHART - REAL 4 WEEKS (FULLY FIXED)
+// ATTENDANCE TREND CHART
 // ============================================================
 function updateAttendanceTrendChart() {
     const ctx = document.getElementById('attendanceTrendChart')?.getContext('2d');
@@ -201,7 +192,6 @@ function updateAttendanceTrendChart() {
     const presentData = [];
     const absentData = [];
 
-    // Find reference date
     let refDateStr = getTodayISO();
     if (allAttendanceData.length > 0) {
         const dates = allAttendanceData.map(a => a.date).filter(Boolean).sort();
@@ -271,7 +261,7 @@ function updateAttendanceTrendChart() {
 }
 
 // ============================================================
-// CATEGORY CHART - REAL
+// CATEGORY CHART
 // ============================================================
 function updateCategoryChart() {
     const ctx = document.getElementById('categoryChart')?.getContext('2d');
@@ -307,7 +297,7 @@ function updateCategoryChart() {
 }
 
 // ============================================================
-// PROJECT LIST - REAL
+// PROJECT LIST
 // ============================================================
 function updateProjectList() {
     const projectList = document.getElementById('projectList');
@@ -368,7 +358,7 @@ function updateProjectList() {
 }
 
 // ============================================================
-// ATTENDANCE TABLE - REAL with FILTERS
+// ATTENDANCE TABLE
 // ============================================================
 async function loadAttendanceTable(page = 1) {
     try {
@@ -723,19 +713,22 @@ function printTable() {
 }
 
 // ============================================================
-// NOTIFICATIONS
+// NOTIFICATIONS (FIXED FOR ANNOUNCEMENTS & BUTTONS)
 // ============================================================
 async function loadNotifications() {
     try {
-        const res = await fetch('/api/admins/notifications');
+        const res = await fetch('/api/admins/notifications?role=Admin', { cache: 'no-store' });
         const notifications = await res.json();
 
         const list = document.getElementById('notificationList');
         if (!list) return;
 
-        const badge = document.getElementById('notificationBadge');
+        const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+        const headerButtons = document.getElementById('notifHeaderButtons');
 
         if (notifications && notifications.length > 0) {
+            if (headerButtons) headerButtons.style.display = 'flex';
+
             const unread = notifications.filter(n => !n.read).length;
             if (badge) {
                 if (unread > 0) {
@@ -748,10 +741,19 @@ async function loadNotifications() {
                 }
             }
 
-            list.innerHTML = notifications.slice(0, 20).map(n => `
+            list.innerHTML = notifications.slice(0, 20).map(n => {
+                let iconClass = 'fa-bell';
+                let iconColor = 'updated';
+                
+                if (n.type === 'created') { iconClass = 'fa-plus-circle'; iconColor = 'created'; }
+                else if (n.type === 'updated') { iconClass = 'fa-pen'; iconColor = 'updated'; }
+                else if (n.type === 'deleted') { iconClass = 'fa-trash'; iconColor = 'deleted'; }
+                else if (n.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; }
+
+                return `
                 <div class="notification-item ${n.read ? 'read' : 'unread'}" onclick="markNotificationRead('${n._id}')">
-                    <div class="notif-icon ${n.type || 'updated'}">
-                        <i class="${getNotificationIcon(n.type)}"></i>
+                    <div class="notif-icon ${iconColor}">
+                        <i class="fa-solid ${iconClass}"></i>
                     </div>
                     <div class="notif-content">
                         <p>${n.message}</p>
@@ -759,8 +761,10 @@ async function loadNotifications() {
                     </div>
                     ${!n.read ? '<span class="notif-dot"></span>' : ''}
                 </div>
-            `).join('');
+                `;
+            }).join('');
         } else {
+            if (headerButtons) headerButtons.style.display = 'none';
             list.innerHTML = `
                 <div class="no-notifications">
                     <i class="fa-regular fa-bell-slash"></i>
@@ -785,32 +789,66 @@ async function loadNotifications() {
     }
 }
 
-function getNotificationIcon(type) {
-    return { created: 'fa-plus-circle', updated: 'fa-pen', deleted: 'fa-trash', status_changed: 'fa-exchange-alt' }[type] || 'fa-bell';
-}
-
-function markNotificationRead() {
-    document.querySelectorAll('.notification-item').forEach(item => {
+async function markNotificationRead(notifId) {
+    const item = document.querySelector(`.notification-item[onclick*="${notifId}"]`);
+    if (item) {
         item.classList.remove('unread');
         item.classList.add('read');
         const dot = item.querySelector('.notif-dot');
         if (dot) dot.remove();
-    });
-    const badge = document.getElementById('notificationBadge');
-    if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
-    setTimeout(() => document.getElementById('notificationDropdown')?.classList.remove('show'), 1000);
+    }
+    
+    const unreadItems = document.querySelectorAll('.notification-item.unread').length;
+    const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+    if (badge) {
+        if (unreadItems > 0) badge.textContent = unreadItems;
+        else { badge.textContent = '0'; badge.style.display = 'none'; }
+    }
+
+    try {
+        await fetch(`/api/admins/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch (err) {}
 }
 
-function markAllRead() {
+async function markAllRead() {
     document.querySelectorAll('.notification-item.unread').forEach(item => {
         item.classList.remove('unread');
         item.classList.add('read');
         const dot = item.querySelector('.notif-dot');
         if (dot) dot.remove();
     });
-    const badge = document.getElementById('notificationBadge');
+    const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
     if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
-    showToast('✅ All notifications marked as read', 'success');
+    
+    try {
+        await fetch('/api/admins/notifications/mark-all-read?role=Admin', { method: 'PUT' });
+        showToast('✅ All notifications marked as read', 'success');
+        setTimeout(() => loadNotifications(), 200);
+    } catch (err) {
+        showToast('❌ Failed to mark as read', 'error');
+    }
+}
+
+async function clearAllNotifications() {
+    try {
+        const response = await fetch('/api/admins/notifications/clear?role=Admin', { method: 'DELETE' });
+        if (response.ok) {
+            const list = document.getElementById('notificationList');
+            if (list) {
+                list.innerHTML = `<div class="no-notifications"><i class="fa-regular fa-bell-slash"></i><p>No notifications</p></div>`;
+            }
+            
+            const headerButtons = document.getElementById('notifHeaderButtons');
+            if (headerButtons) headerButtons.style.display = 'none';
+            
+            const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
+            if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
+            
+            showToast('✅ All notifications cleared!', 'success');
+        }
+    } catch (err) {
+        showToast('❌ Error clearing notifications', 'error');
+    }
 }
 
 // ============================================================
@@ -835,12 +873,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }) + ' · All sites';
     }
 
-    // Default filter dates
     const w = new Date(); w.setDate(w.getDate() - 7);
     document.getElementById('filterStartDate').value = w.toISOString().split('T')[0];
     document.getElementById('filterEndDate').value = getTodayISO();
 
-    // Navigation
     document.getElementById('admindashBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/admin-dashboard'; });
     document.getElementById('workersmangBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workersmang'; });
     document.getElementById('workerattendBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workerattend'; });
@@ -855,15 +891,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     document.getElementById('settingsBtnTop')?.addEventListener('click', () => window.location.href = '/settings');
 
-    // Notification dropdown
     const notificationBtn = document.getElementById('notificationBtn');
     const dropdown = document.createElement('div');
     dropdown.className = 'notification-dropdown';
     dropdown.id = 'notificationDropdown';
     dropdown.innerHTML = `
-        <div class="dropdown-header">
-            <h4>Notifications</h4>
-            <button onclick="markAllRead()">Mark all read</button>
+        <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border);">
+            <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark);">Notifications</h4>
+            <div id="notifHeaderButtons" style="display: none; gap: 8px;">
+                <button onclick="markAllRead()" style="font-size: 12px; color: var(--blue); background: none; border: none; cursor: pointer; font-weight: 600;">Mark all read</button>
+                <button onclick="clearAllNotifications()" style="font-size: 12px; color: var(--red); background: none; border: none; cursor: pointer; font-weight: 600;">Clear All</button>
+            </div>
         </div>
         <div id="notificationList"><div class="no-notifications">Loading...</div></div>
     `;
@@ -879,10 +917,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!dropdown.contains(e.target) && e.target !== notificationBtn) dropdown.classList.remove('show');
     });
 
-    // Search
     document.getElementById('globalSearch')?.addEventListener('input', () => loadAttendanceTable(1));
 
-    // Filters
     document.getElementById('applyFilterBtn')?.addEventListener('click', () => loadAttendanceTable(1));
     document.getElementById('resetFilterBtn')?.addEventListener('click', () => {
         const w = new Date(); w.setDate(w.getDate() - 7);
@@ -893,7 +929,6 @@ document.addEventListener('DOMContentLoaded', function () {
         loadAttendanceTable(1);
     });
 
-    // Pagination
     document.getElementById('prevPage')?.addEventListener('click', () => {
         if (currentPage > 1) { currentPage--; loadAttendanceTable(currentPage); }
     });
@@ -901,7 +936,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentPage < totalPages) { currentPage++; loadAttendanceTable(currentPage); }
     });
 
-    // Generate Report Modal
     const modal = document.getElementById('reportModal');
     document.getElementById('generateReportBtn')?.addEventListener('click', () => {
         modal.style.display = 'block';
@@ -928,7 +962,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    // Export & Refresh
     document.getElementById('exportAllBtn')?.addEventListener('click', exportAllData);
     document.getElementById('refreshBtn')?.addEventListener('click', function () {
         const btn = this;
@@ -945,11 +978,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Initial load
     loadAllData();
     loadNotifications();
     setInterval(loadAllData, 60000);
-    setInterval(loadNotifications, 30000);
+    setInterval(loadNotifications, 10000); 
 });
 
 // ============================================================
@@ -962,6 +994,7 @@ window.exportTableData = exportTableData;
 window.printTable = printTable;
 window.markAllRead = markAllRead;
 window.markNotificationRead = markNotificationRead;
+window.clearAllNotifications = clearAllNotifications; // ✅ Added globally
 window.generateReport = generateReport;
 window.showToast = showToast;
 window.loadNotifications = loadNotifications;
