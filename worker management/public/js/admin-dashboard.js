@@ -11,7 +11,7 @@ let allPayrollData = [];
 let allAdminsData = [];
 
 // ============================================================
-// ✅ CUSTOM TOAST (Like Owner Dashboard)
+// ✅ CUSTOM TOAST
 // ============================================================
 function showCustomToast(message, type = 'success') {
     const existing = document.getElementById('myCustomToast');
@@ -52,7 +52,6 @@ function showCustomToast(message, type = 'success') {
     }, 3000);
 }
 
-// Alias for older code calls
 function showToast(message, type = 'success') {
     showCustomToast(message, type);
 }
@@ -62,101 +61,48 @@ function showToast(message, type = 'success') {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Check if user is logged in
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
     if (!user.name) {
         window.location.href = '/';
         return;
     }
 
-    // Set user name in profile
+    // Set user info
     const userNameElement = document.getElementById('userName');
-    if (userNameElement) {
-        userNameElement.textContent = user.name;
-    }
+    if (userNameElement) userNameElement.textContent = user.name;
 
-    // Set admin name in banner
     const adminNameElement = document.getElementById('adminName');
-    if (adminNameElement) {
-        adminNameElement.textContent = user.name;
-    }
+    if (adminNameElement) adminNameElement.textContent = user.name;
 
-    // Update profile image
     const profileImg = document.querySelector('.profile img');
-    if (profileImg) {
-        profileImg.src = `https://ui-avatars.com/api/?name=${user.name}&background=7c3aed&color=fff`;
-    }
+    if (profileImg) profileImg.src = `https://ui-avatars.com/api/?name=${user.name}&background=7c3aed&color=fff`;
 
-    // Set profile text
     const profileSmall = document.querySelector('.profile-text small');
-    if (profileSmall) {
-        profileSmall.textContent = 'Admin';
-    }
+    if (profileSmall) profileSmall.textContent = 'Admin';
 
-    // Set current date
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    };
+    // Dates
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const today = new Date();
     const dateElement = document.getElementById('currentDate');
-    if (dateElement) {
-        dateElement.textContent = today.toLocaleDateString('en-US', options) + ' · All sites';
-    }
+    if (dateElement) dateElement.textContent = today.toLocaleDateString('en-US', options) + ' · All sites';
 
-    // Set banner date
     const bannerDate = document.getElementById('bannerDate');
     if (bannerDate) {
         bannerDate.textContent = today.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            month: 'long', 
-            day: 'numeric',
-            year: 'numeric'
+            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
         });
     }
 
-    // ============================================================
     // NAVIGATION
-    // ============================================================
-    document.getElementById('workersmangBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/workersmang';
-    });
+    document.getElementById('workersmangBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workersmang'; });
+    document.getElementById('workerattendBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/workerattend'; });
+    document.getElementById('aprojectsBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/kaam'; });
+    document.getElementById('areportsBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/areports'; });
+    document.getElementById('wpayrollBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/wpayroll'; });
+    document.getElementById('settingsBtn')?.addEventListener('click', e => { e.preventDefault(); window.location.href = '/settings'; });
+    document.getElementById('settingsBtnTop')?.addEventListener('click', () => window.location.href = '/settings');
 
-    document.getElementById('workerattendBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/workerattend';
-    });
-
-    document.getElementById('aprojectsBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/kaam';
-    });
-
-    document.getElementById('areportsBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/areports';
-    });
-
-    document.getElementById('wpayrollBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/wpayroll';
-    });
-
-    document.getElementById('settingsBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/settings';
-    });
-
-    // Settings button in topbar
-    document.getElementById('settingsBtnTop')?.addEventListener('click', function() {
-        window.location.href = '/settings';
-    });
-
-    document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
+    document.getElementById('logoutBtn')?.addEventListener('click', e => {
         e.preventDefault();
         if (confirm('Are you sure you want to logout?')) {
             localStorage.removeItem('user');
@@ -164,8 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Profile click
-    document.querySelector('.profile')?.addEventListener('click', function() {
+    document.querySelector('.profile')?.addEventListener('click', () => {
         if (confirm('Do you want to logout?')) {
             localStorage.removeItem('user');
             window.location.href = '/';
@@ -173,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // ✅ NOTIFICATION DROPDOWN (With Announcement Support & Clear All)
+    // NOTIFICATION DROPDOWN
     // ============================================================
     const notificationBtn = document.querySelector('.notification');
     
@@ -198,9 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
         const dropdown = document.getElementById('notificationDropdown');
         dropdown.classList.toggle('show');
-        if (dropdown.classList.contains('show')) {
-            loadNotifications();
-        }
+        if (dropdown.classList.contains('show')) loadNotifications();
     });
 
     document.addEventListener('click', function(e) {
@@ -210,28 +153,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ============================================================
     // SEARCH
-    // ============================================================
     document.getElementById('globalSearch')?.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
-        if (searchTerm.length > 0) {
-            searchDashboard(searchTerm);
-        }
+        if (searchTerm.length > 0) searchDashboard(searchTerm);
     });
 
-    // ============================================================
     // LOAD ALL DATA
-    // ============================================================
     loadDashboardData();
-    loadNotifications(); // ✅ Initial load par hi notifications call karo
+    loadNotifications();
 
-    // Auto-refresh every 60 seconds
-    setInterval(() => {
-        loadDashboardData();
-    }, 60000);
-    
-    // Notification polling every 10 seconds
+    setInterval(() => loadDashboardData(), 60000);
     setInterval(loadNotifications, 10000);
 });
 
@@ -254,13 +186,10 @@ async function loadDashboardData() {
         allAdminsData = await adminsRes.json();
         allPayrollData = await payrollRes.json();
 
-        // Update all UI components
         updateStats();
         updateBanner();
         updateCharts();
         updateActivity();
-
-        console.log('✅ Dashboard data loaded successfully!');
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -277,14 +206,12 @@ function updateStats() {
     const activeProjects = allProjectsData.filter(p => p.status !== 'Completed').length;
     const uniqueSites = new Set(allProjectsData.map(p => p.location)).size;
 
-    // Today's attendance
     const todayAttendance = allAttendanceData.filter(a => a.date === today);
     const presentToday = todayAttendance.filter(a => a.status === 'Present').length;
     const absentToday = todayAttendance.filter(a => a.status === 'Absent').length;
     const lateToday = todayAttendance.filter(a => a.status === 'Late').length;
     const totalToday = todayAttendance.length || 1;
 
-    // Calculate payroll
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     const monthPayroll = allPayrollData.filter(p => {
@@ -293,10 +220,8 @@ function updateStats() {
     });
     const totalPayroll = monthPayroll.reduce((sum, p) => sum + (p.netSalary || 0), 0);
 
-    // Pending approvals (leave requests)
     const pendingApprovals = allAttendanceData.filter(a => a.status === 'On Leave' || a.status === 'Late').length;
 
-    // Update cards
     document.getElementById('totalWorkers').textContent = totalWorkers || 0;
     document.getElementById('presentToday').textContent = presentToday || 0;
     document.getElementById('absentToday').textContent = absentToday || 0;
@@ -306,7 +231,6 @@ function updateStats() {
     document.getElementById('totalPayroll').textContent = totalPayroll > 0 ? `₹${(totalPayroll / 100000).toFixed(1)}L` : '₹0';
     document.getElementById('pendingApprovals').textContent = pendingApprovals || 0;
 
-    // Update percentages
     document.getElementById('presentPercent').textContent = `${Math.round((presentToday / totalToday) * 100)}%`;
     document.getElementById('absentPercent').textContent = `${Math.round((absentToday / totalToday) * 100)}%`;
     document.getElementById('latePercent').textContent = `${Math.round((lateToday / totalToday) * 100)}%`;
@@ -331,16 +255,13 @@ function updateBanner() {
 }
 
 // ============================================================
-// UPDATE CHARTS - REAL TIME
+// CHARTS
 // ============================================================
 function updateCharts() {
     updateWeeklyChart();
     updateSitePerformanceChart();
 }
 
-// ============================================================
-// UPDATE WEEKLY CHART
-// ============================================================
 function updateWeeklyChart() {
     const ctx = document.getElementById('dailyCheckinsChart')?.getContext('2d');
     if (!ctx) return;
@@ -357,9 +278,7 @@ function updateWeeklyChart() {
         weekData.push(dayAttendance.filter(a => a.status === 'Present').length);
     }
 
-    if (weeklyChartInstance) {
-        weeklyChartInstance.destroy();
-    }
+    if (weeklyChartInstance) weeklyChartInstance.destroy();
 
     weeklyChartInstance = new Chart(ctx, {
         type: 'bar',
@@ -373,110 +292,62 @@ function updateWeeklyChart() {
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f1f5f9' },
-                    ticks: {
-                        callback: function(value) {
-                            return value + ' workers';
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false }
-                }
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => v + ' workers' } },
+                x: { grid: { display: false } }
             }
         }
     });
 }
 
-// ============================================================
-// UPDATE SITE PERFORMANCE CHART - REAL TIME PROJECTS
-// ============================================================
 function updateSitePerformanceChart() {
     const ctx = document.getElementById('sitePerformanceChart')?.getContext('2d');
     if (!ctx) return;
 
-    // Get project data from database
     const projects = allProjectsData;
     const projectNames = projects.map(p => p.name);
     const projectData = projects.map(p => {
-        // Calculate attendance rate for each project
         const projectWorkers = allWorkersData.filter(w => w.project === p.name);
         const workerIds = projectWorkers.map(w => w._id);
-        const projectAttendance = allAttendanceData.filter(a => 
-            workerIds.includes(a.workerId?._id || a.workerId)
-        );
+        const projectAttendance = allAttendanceData.filter(a => workerIds.includes(a.workerId?._id || a.workerId));
         const total = projectAttendance.length || 1;
         const present = projectAttendance.filter(a => a.status === 'Present').length;
         return Math.round((present / total) * 100);
     });
 
-    if (sitePerformanceChartInstance) {
-        sitePerformanceChartInstance.destroy();
-    }
-
-    // Colors for projects
+    if (sitePerformanceChartInstance) sitePerformanceChartInstance.destroy();
     const colors = ['#2563eb', '#7c3aed', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6', '#f472b6', '#34d399'];
 
     sitePerformanceChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: projectNames,
-            datasets: [{
-                data: projectData,
-                backgroundColor: colors.slice(0, projectNames.length),
-                borderWidth: 2,
-                borderColor: '#ffffff'
-            }]
+            datasets: [{ data: projectData, backgroundColor: colors.slice(0, projectNames.length), borderWidth: 2, borderColor: '#ffffff' }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        padding: 16,
-                        font: { size: 12 }
-                    }
-                }
-            },
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } } },
             cutout: '65%'
         }
     });
 }
 
 // ============================================================
-// UPDATE ACTIVITY - REAL TIME
+// UPDATE ACTIVITY
 // ============================================================
 function updateActivity() {
     const activityList = document.getElementById('activityList');
     if (!activityList) return;
 
-    // Get recent attendance records
-    const recentAttendance = allAttendanceData
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 10);
+    const recentAttendance = allAttendanceData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
 
     if (recentAttendance.length === 0) {
         activityList.innerHTML = `
             <div class="activity-item">
-                <div class="activity-icon blue">
-                    <i class="fa-regular fa-clock"></i>
-                </div>
-                <div class="activity-content">
-                    <p>No recent activity found</p>
-                    <span class="activity-time">Check back later</span>
-                </div>
+                <div class="activity-icon blue"><i class="fa-regular fa-clock"></i></div>
+                <div class="activity-content"><p>No recent activity found</p><span class="activity-time">Check back later</span></div>
             </div>
         `;
         return;
@@ -497,12 +368,9 @@ function updateActivity() {
         
         return `
             <div class="activity-item">
-                <div class="activity-icon ${statusInfo.color}">
-                    <i class="${statusInfo.icon}"></i>
-                </div>
+                <div class="activity-icon ${statusInfo.color}"><i class="${statusInfo.icon}"></i></div>
                 <div class="activity-content">
-                    <p><strong>${worker.name || 'Unknown'}</strong> marked as 
-                    <strong>${status}</strong> at ${worker.project || 'Unknown site'}</p>
+                    <p><strong>${worker.name || 'Unknown'}</strong> marked as <strong>${status}</strong> at ${worker.project || 'Unknown site'}</p>
                     <span class="activity-time">${timeDiff}</span>
                 </div>
             </div>
@@ -510,15 +378,11 @@ function updateActivity() {
     }).join('');
 }
 
-// ============================================================
-// FORMAT TIME AGO
-// ============================================================
 function formatTimeAgo(timestamp) {
     if (!timestamp) return 'Just now';
     const date = new Date(timestamp);
     const now = new Date();
     const diff = now - date;
-    
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
     if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
@@ -526,38 +390,26 @@ function formatTimeAgo(timestamp) {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 }
 
-// ============================================================
-// SEARCH DASHBOARD
-// ============================================================
 function searchDashboard(searchTerm) {
     const cards = document.querySelectorAll('.card');
     cards.forEach(card => {
         const text = card.textContent.toLowerCase();
-        if (text.includes(searchTerm)) {
-            card.style.display = 'block';
-            card.classList.add('highlight');
-        } else {
-            card.style.display = 'none';
-            card.classList.remove('highlight');
-        }
+        if (text.includes(searchTerm)) { card.style.display = 'block'; card.classList.add('highlight'); }
+        else { card.style.display = 'none'; card.classList.remove('highlight'); }
     });
-
-    // Reset after 5 seconds
     setTimeout(() => {
-        cards.forEach(card => {
-            card.style.display = 'block';
-            card.classList.remove('highlight');
-        });
+        cards.forEach(card => { card.style.display = 'block'; card.classList.remove('highlight'); });
     }, 5000);
 }
 
 // ============================================================
-// ✅ NOTIFICATION FUNCTIONS (ADMIN ROLE)
+// ✅ NOTIFICATIONS (ADMIN) — FIXED
 // ============================================================
 async function loadNotifications() {
     try {
-        // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
         const response = await fetch('/api/admins/notifications?role=Admin', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        
         const notifications = await response.json();
         
         const list = document.getElementById('notificationList');
@@ -588,7 +440,7 @@ async function loadNotifications() {
                 if (notif.type === 'created') { iconClass = 'fa-plus-circle'; iconColor = 'created'; }
                 else if (notif.type === 'updated') { iconClass = 'fa-pen'; iconColor = 'updated'; }
                 else if (notif.type === 'deleted') { iconClass = 'fa-trash'; iconColor = 'deleted'; }
-                else if (notif.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; } // ✅ Megaphone Icon
+                else if (notif.type === 'announcement') { iconClass = 'fa-bullhorn'; iconColor = 'status_changed'; }
 
                 return `
                 <div class="notification-item ${notif.read ? 'read' : 'unread'}" onclick="markNotificationRead('${notif._id}')">
@@ -644,12 +496,8 @@ function markNotificationRead(notifId) {
     const unreadItems = document.querySelectorAll('.notification-item.unread').length;
     const badge = document.getElementById('notificationBadge') || document.querySelector('.notification .badge');
     if (badge) {
-        if (unreadItems > 0) {
-            badge.textContent = unreadItems;
-        } else {
-            badge.textContent = '0';
-            badge.style.display = 'none';
-        }
+        if (unreadItems > 0) badge.textContent = unreadItems;
+        else { badge.textContent = '0'; badge.style.display = 'none'; }
     }
 
     try {
@@ -672,7 +520,6 @@ function markAllRead() {
         badge.style.display = 'none';
     }
     
-    // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
     fetch('/api/admins/notifications/mark-all-read?role=Admin', { method: 'PUT' }).catch(console.error);
     
     showCustomToast('✅ All notifications marked as read', 'success');
@@ -680,10 +527,7 @@ function markAllRead() {
 
 async function clearAllNotifications() {
     try {
-        // ✅ YAHAN CHANGE HUA HAI: ?role=Admin
-        const response = await fetch('/api/admins/notifications/clear?role=Admin', {
-            method: 'DELETE'
-        });
+        const response = await fetch('/api/admins/notifications/clear?role=Admin', { method: 'DELETE' });
 
         if (response.ok) {
             const list = document.getElementById('notificationList');
@@ -714,7 +558,7 @@ async function clearAllNotifications() {
 }
 
 // ============================================================
-// MAKE FUNCTIONS GLOBALLY ACCESSIBLE
+// GLOBALS
 // ============================================================
 window.markAllRead = markAllRead;
 window.markNotificationRead = markNotificationRead;
@@ -725,7 +569,7 @@ window.showCustomToast = showCustomToast;
 window.showToast = showToast;
 
 // ============================================================
-// MOBILE ANIMATION CSS
+// CSS
 // ============================================================
 const notifStyle = document.createElement('style');
 notifStyle.textContent = `
